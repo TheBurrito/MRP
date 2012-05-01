@@ -8,8 +8,8 @@
 #include <pthread.h>
 #include <unistd.h>
 
-#include "sonarmodel.h"
-#include "dynamicmap.h"
+#include "sensor/sonarmodel.h"
+#include "mapping/dynamicmap.h"
 
 #include <iostream>
 
