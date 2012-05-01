@@ -1,0 +1,7 @@
+add_library(
+
+  mrp_nav
+  
+    path.cpp
+    gridvoronoi.cpp
+)

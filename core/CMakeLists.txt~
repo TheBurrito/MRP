@@ -1,0 +1,10 @@
+#Core lower level items that don't rely on any higher level constructs, or
+# are used by mutliple higher level libraries.
+add_library(
+
+	mrp_core
+	
+	  types.cpp
+		pid.cpp
+		common.cpp
+)
