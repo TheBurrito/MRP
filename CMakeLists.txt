@@ -19,7 +19,7 @@ find_package(Doxygen)
 
 if (DOXYGEN_FOUND)
   configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/dab5267_mrp.doyfile.in
+    ${CMAKE_CURRENT_SOURCE_DIR}/dab5267_mrp.doxyfile.in
     ${CMAKE_CURRENT_BINARY_DIR}/dab5267_mrp.doxyfile
     @ONLY
   )
