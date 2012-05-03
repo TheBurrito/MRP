@@ -44,4 +44,23 @@ inline bool operator<(const Pos2& a, const Pos2& b) {
   }
 }
 
+inline Pose operator-(const Pose& a, const Pose& b) {
+  Pose pose;
+  
+  pose.p.x = a.p.x - b.p.x;
+  pose.p.y = a.p.y - b.p.y;
+  pose.yaw = a.yaw - b.yaw;
+  
+  return pose;
+}
+
+inline Pose operator+(const Pose& a, const Pose& b) {
+  Pose pose;
+  
+  pose.p.x = a.p.x + b.p.x;
+  pose.p.y = a.p.y + b.p.y;
+  pose.p.yaw = a.yaw + b.yaw;
+  
+  return pose;
+}
 #endif /* types_h_ */
