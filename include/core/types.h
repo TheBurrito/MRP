@@ -59,7 +59,7 @@ inline Pose operator+(const Pose& a, const Pose& b) {
   
   pose.p.x = a.p.x + b.p.x;
   pose.p.y = a.p.y + b.p.y;
-  pose.p.yaw = a.yaw + b.yaw;
+  pose.yaw = a.yaw + b.yaw;
   
   return pose;
 }

@@ -34,17 +34,6 @@ bool getNextPoint(std::istream& is, double& x, double& y) {
 	return true;
 }
 
-Pos2 rotate(const Pos2& pos, const double& theta) {
-  Pos2 rot;
-  double c = cos(theta);
-  double s = sin(theta);
-
-  rot.x = pos.x * c - pos.y * s;
-  rot.y = pos.x * s + pos.y * c;
-
-  return rot;
-}
-
 double getSecs() {
 	double s;
 	
