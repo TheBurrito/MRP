@@ -50,6 +50,8 @@ public:
 
   virtual double gridRes();
 
+  virtual void discretizePoints(PosPolList& pts) const;
+
   int needsAllocation();
 
   void doRegionAllocations();

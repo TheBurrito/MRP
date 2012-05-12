@@ -3,11 +3,7 @@
 
 #include "sensor/sensor-ranging.h"
 
-Pose Pioneer8Sonar[8] = { { { 0.075, 0.130 }, dtor(90) }, {
-    { 0.115, 0.115 }, dtor(50) }, { { 0.150, 0.080 }, dtor(30) }, { { 0.170,
-    0.025 }, dtor(10) }, { { 0.170, -0.025 }, dtor(-10) }, { { 0.150, -0.080 },
-    dtor(-30) }, { { 0.115, -0.115 }, dtor(-50) }, { { 0.075, -0.130 }, dtor(
-    -90) } };
+extern Pose Pioneer8Sonar[8];
 
 /**
  * Represents a sonar sensor using a player/stage proxy.
@@ -39,7 +35,9 @@ public:
    */
   virtual unsigned int getRangeCount();
 
-  virtual Pose geom(size_t i);
+  virtual size_t getNumSensors();
+
+  virtual const Pose& getGeom(size_t idx);
 
   /**
    * Allows access to a single sonar's range from the sonar bank.

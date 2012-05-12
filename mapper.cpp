@@ -123,10 +123,15 @@ void* robotLoop(void* args) {
   //int draw = 0, loopsPerPixel = 10;
 
   cout << "Creating sonar model..." << flush;
-  SensorSonar sSonar(pSonar, 0.0, 5.0);
+
+  SensorSonar sSonar(pSonar, &Pioneer8Sonar[0], 8, 0, 5.0);
+
+  SonarProfile sProf(7.0, 3.0, 0.5, dtor(30), 0.2);
+  SonarIterativeRegion sReg(dtor(2), 0.1, dtor(30), 0.2);
+  SensorModel sonar(&sSonar, &sReg, &sProf, PtoO(.7));
 
   /*                       sonar,     dTh,  dd, obs, clr,    beamW, res*/
-  SimpleSonarModel sonar(&sSonar, dtor(2), 0.1, 3.0, 0.5, dtor(30), 0.2);
+  //SimpleSonarModel sonar(&sSonar, dtor(2), 0.1, 3.0, 0.5, dtor(30), 0.2);
   cout << "Done" << endl;
 
   Pose robot;
@@ -159,7 +164,7 @@ void* robotLoop(void* args) {
     robot.yaw = pPosition->GetYaw();
 
     //cout << "Updating map..." << flush;
-    sonar.updateMap(pMap, robot);
+    sonar.updateMap((*pMap), robot);
     //cout << "Done" << endl;
 
     if (dMap->needsAllocation()) {

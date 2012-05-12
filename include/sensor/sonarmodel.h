@@ -2,58 +2,44 @@
 #define sonarmodel_h_
 
 #include "sensor/sensor-sonar.h"
-#include "mapping/map.h"
+#include "sensor/sensormodel.h"
 
-class SimpleSonarModel {
+class SonarProfile: public SensorOddsProfile {
 public:
   /**
-   * Creates an iterative sonar model. Uses nested for loops to "fill" in an
-   * arc with data.
+   * Stores the various parameters for performing odds calculations from a sonar
+   * sensor.
    *
-   * @param sonar The sonar to use for range readings.
-   * @param dTh The angle step to take when sweeping across the beam.
-   * @param dd  The distance step when tracing lines out from the sensor.
-   * @param oddObs  The odds to use when detecting an obstacle.
-   * @param oddClr  The odds to use when clearing space.
-   * @param beamWidth The width of the sonar reponse in radians.
-   * @param res The accuracy of the sonar in meters.
+   * @param maxD The max reading of the sonar sensor.
+   * @param oddObs The odds used when calculating odds for a perceived obstacle.
+   * @param oddClr The odds used when calculating odds for clear space.
+   * @param beamWidth The width of the beam, in radians.
+   * @param res The resolution of the sensor, in meters.
    */
-  SimpleSonarModel(SensorSonar *sonar, const double& dTh, const double& dd,
-      const double& oddObs, const double& oddClr, const double& beamWidth,
-      const double& res);
+  SonarProfile(const double& maxD, const double& oddObs, const double& oddClr,
+      const double& beamWidth, const double& res);
 
-  /**
-   * Uses the model to generate point data for updating the math. Note that the
-   * map handles pruning overlapping grid updates.
-   *
-   * @param map The map instance to update.
-   * @param robot The pose of the robot corresponding to the current sonar
-   * readings available from the sonar object.
-   */
-  int updateMap(Map *map, const Pose& robot);
+  virtual double getOdds(const PosPol& pt, const double& d);
 
 private:
-  /**
-   * The piece-wise function for determining obstacle/clearing response based
-   * on the distance of the sonar reading.
-   *
-   * @param x The current distance from the sensor.
-   * @param d The distance reading from the sensor.
-   * @return
-   */
-  double profile(const double& x, const double& d);
+  double _obs, _clr;
+  double _w, _w_2;
+  double _res, _res_2;
+  double _d;
+};
 
-  /**
-   * Handles the response based on the angle of a pixel from the center of the
-   * beam.
-   * @param th The angle from the center of the beam, in radians.
-   * @param prof The profile value returned from the piece-wise profile.
-   * @return
-   */
-  virtual double falloff(const double& th, const double& prof);
+class SonarIterativeRegion: public SensorRegion {
+public:
+  SonarIterativeRegion(const double& dTh, const double& dd,
+      const double& beamWidth, const double& res);
 
-  SensorSonar *_sonar;
-  double _dTh, _dd, _obs, _clr, _w, _w_2, _res_2;
+  virtual void buildRegion(SensorRanger *sensor, const Pose& robot, size_t idx,
+        const Pose& geom);
+
+private:
+  double _dTh, _dd;
+  double _w, _w_2;
+  double _res, _res_2;
 };
 
 #endif /* sonarmodel_h_ */

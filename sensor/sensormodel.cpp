@@ -8,6 +8,8 @@
 #include "sensor/sensormodel.h"
 #include <map>
 
+//#include <iostream>
+
 SensorModel::SensorModel(SensorRanger *sensor, SensorRegion *region,
     SensorOddsProfile *prof, const double& obsThresh) {
 
@@ -26,8 +28,14 @@ void SensorModel::updateMap(Map& map, const Pose& robot) {
   for (size_t s = 0; s < num; ++s) {
     pts = _region->generateRegion(_sensor, map, robot, s);
     n = pts.size();
+
+    //std::cout << "\tSensor generated " << n << " points." << std::endl;
     d = (*_sensor)[s];
+
+    //std::cout << "\tUpdating map with points..." << std::endl;
+
     for (size_t i = 0; i < n; ++i) {
+      //std::cout << i << " : " << std::flush;
       map.update(pts[i].pos.x, pts[i].pos.y, _prof->getOdds(pts[i], d));
     }
   }
@@ -74,7 +82,7 @@ double SensorModel::localizationProb(Map& map, const Pose& robot) {
     pt.pol.d = dSum / oSum;
     pt.pol.theta = oSum / minD.size();
 
-    p *= _prof->getOdds(pt, d);
+    p *= OtoP(_prof->getOdds(pt, d));
   }
 
   return p;
@@ -84,9 +92,21 @@ const PosPolList& SensorRegion::generateRegion(SensorRanger *sensor,
     const Map& map, const Pose& robot, size_t idx) {
   _pts.clear();
 
-  buildRegion(sensor, robot, idx);
+  Pose geom;
+
+  if (sensor->getNumSensors() > 1) {
+    geom = sensor->getGeom(idx);
+  } else {
+    geom = sensor->getGeom(0);
+  }
+
+  buildRegion(sensor, robot, idx, geom);
+
+  //std::cout << "Points before disc: " << _pts.size() << std::endl;
 
   map.discretizePoints(_pts);
+
+  //std::cout << "Points after: " << _pts.size() << std::endl;
 
   return _pts;
 }

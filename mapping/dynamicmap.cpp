@@ -7,6 +7,8 @@
 
 #include "mapping/dynamicmap.h"
 
+//#include <iostream>
+
 DynamicMap::DynamicMap(const double& res, const double& regWidth,
     const double& regHeight, const double& defVal) {
   _grd = new DynamicGrid<double>(res, regWidth, regHeight, defVal);
@@ -33,9 +35,51 @@ inline void updateGrid(double *p, const double& v) {
 }
 
 void DynamicMap::update(const double& x, const double& y, const double& odds) {
+  //std::cout << "update: " << x << " " << y << " " << odds << std::endl;
   double *v = _grd->get(x, y);
 
+  if (!v) {
+    //std::cout << "Grid location not allocated yet. Aborting update." << std::endl;
+    return;
+  }
+  //std::cout << *v << std::endl;
   updateGrid(v, odds);
+}
+
+void DynamicMap::discretizePoints(PosPolList& pts) const {
+  std::map<double *, PosPol *> vals;
+  std::map<double *, PosPol *>::iterator iter;
+
+  std::map<PosPol *, bool> rem;
+
+  PosPolList::iterator ptIter;
+
+  double *p;
+  size_t n;
+
+  n = pts.size();
+
+  for (size_t i = 0; i < n; ++i) {
+    p = _grd->get(pts[i].pos.x, pts[i].pos.y);
+    if (p) {
+      iter = vals.find(p);
+      if (iter != vals.end() && iter->second->pol.d < pts[i].pol.d) {
+        rem[iter->second] = true;
+      }
+
+      rem[&pts[i]] = false;
+
+    } else {
+      _grd->allocateRegion(pts[i].pos.x, pts[i].pos.y);
+    }
+  }
+
+  for (size_t i = 0; i < pts.size(); ++i) {
+    if (rem[&pts[i]]) {
+      pts.erase(pts.begin() + i);
+      --i;
+    }
+  }
 }
 
 void DynamicMap::update(const Pos2VList& pts) {

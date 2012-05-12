@@ -46,6 +46,13 @@ public:
   virtual void update(const Pos2VList& pts)=0;
 
   /**
+   * Removes points from the list that fit within the same grid cell of the map.
+   *
+   * @param pts The list of points to discretize into map space.
+   */
+  virtual void discretizePoints(PosPolList& pts) const =0;
+
+  /**
    * Reports the width of the environment stored in the map in units of meters.
    * @return The width of the current map in meters.
    */

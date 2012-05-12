@@ -1,4 +1,4 @@
-#ifndef DynamicGrid_h_
+#ifndef dynamicgrid_h_
 #define dynamicgrid_h_
 
 #include <map>

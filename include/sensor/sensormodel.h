@@ -2,8 +2,9 @@
 #define sensormodel_h_
 
 #include "mapping/map.h"
+#include "sensor/sensor-ranging.h"
 
-class SensorProb;
+class SensorOddsProfile;
 class SensorRegion;
 
 /**
@@ -104,8 +105,10 @@ protected:
    * @param sensor The sensor the region is being build for.
    * @param robot The location of the robot to generate the region relative to.
    * @param idx The index of the physical sensor to generate a region for.
+   * @param geom The layout of the physical sensor relative to the robot.
    */
-  void buildRegion(SensorRegion *sensor, const Pose& robot, size_t idx)=0;
+  virtual void buildRegion(SensorRanger *sensor, const Pose& robot, size_t idx,
+      const Pose& geom)=0;
 
   PosPolList _pts;
 };

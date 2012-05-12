@@ -23,7 +23,7 @@ typedef struct {
 typedef std::vector<Pos2> Pos2List;
 
 typedef struct {
-	Pos2 p;
+	Pos2 pos;
 	Polar2 pol;
 } PosPol;
 

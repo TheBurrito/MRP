@@ -39,7 +39,7 @@ Pos2 APF::calc(const Pose& robot, const Pos2& goal, const Pos2List& points) {
 	dg.x = goal.x - robot.p.x;
 	dg.y = goal.y - robot.p.y;
 	
-	//Distance to the goal
+	//Angle to the goal
 	theta = atan2(dg.y, dg.x) - robot.yaw;
 	
 	//Perform the result vector calculation

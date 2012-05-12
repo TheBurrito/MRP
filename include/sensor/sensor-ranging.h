@@ -27,7 +27,7 @@ public:
    * @return A list of points detected that lie between the specified angles in
    * robot-local space.
    */
-	Pos2List getLocalScan(double sAng, double eAng);
+	virtual Pos2List getLocalScan(double sAng, double eAng)=0;
 	
 	/**
 	 * Used for determining the number of data points associated with a scan.
@@ -42,7 +42,7 @@ public:
    * @param i The index of the sensor.
    * @return The pose (position and angle) of the sensor.
    */
-	virtual Pose getGeom(size_t i)=0;
+	virtual const Pose& getGeom(size_t i)=0;
 
 	virtual size_t getNumSensors()=0;
 
