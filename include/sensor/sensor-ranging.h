@@ -15,7 +15,7 @@ public:
    *
    * @return A list of points detected from the front hemi-sphere of the robot.
    */
-	virtual std::vector<Pos2> getLocalScan() {
+	inline Pos2List getLocalScan() {
 		return getLocalScan(dtor(90), dtor(-90));
 	}
 	
@@ -27,7 +27,7 @@ public:
    * @return A list of points detected that lie between the specified angles in
    * robot-local space.
    */
-	virtual Pos2List getLocalScan(double sAng, double eAng)=0;
+	Pos2List getLocalScan(double sAng, double eAng);
 	
 	/**
 	 * Used for determining the number of data points associated with a scan.
@@ -35,11 +35,22 @@ public:
 	 * cases this should agree with the length of the list returned from
 	 * getLocalScan.
 	 */
-	virtual unsigned int getRangeCount()=0;
+	virtual size_t getRangeCount()=0;
 	
-protected:
-	double _min;
-	double _max;
+	/**
+   * Returns the pose of a specific sensor relative to the robot.
+   * @param i The index of the sensor.
+   * @return The pose (position and angle) of the sensor.
+   */
+	virtual Pose getGeom(size_t i)=0;
+
+	virtual size_t getNumSensors()=0;
+
+	virtual double operator[](size_t i)=0;
+
+	virtual double getMin()=0;
+
+	virtual double getMax()=0;
 };
 
 #endif /* pioneer_ranger_h_ */
