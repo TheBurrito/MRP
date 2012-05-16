@@ -47,6 +47,8 @@ static void display() {
 
   double w = pMap->envWidth(), h = pMap->envHeight();
 
+  //cout << w << ", " << h << endl;
+
   double W = w / (double) WIN_X, H = h / (double) WIN_Y;
   double l = pMap->envLeft() + pMap->gridRes() / 2;
   double t = pMap->envTop() - pMap->gridRes() / 2;

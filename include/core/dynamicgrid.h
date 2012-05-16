@@ -16,6 +16,8 @@ namespace std
  using namespace __gnu_cxx;
 }
 
+//#include <iostream>
+
 #include "core/types.h"
 
 #define xInd(x) (floor(x / _rWidth))
@@ -156,31 +158,31 @@ public:
     return mr ? &(mr->get(x, y)) : 0;
   }
 
-  inline double width() {
+  inline double width() const {
     return _right - _left;
   }
 
-  inline double height() {
+  inline double height() const {
     return _top - _bottom;
   }
 
-  inline double left() {
+  inline double left() const {
     return _left;
   }
 
-  inline double right() {
+  inline double right() const {
     return _right;
   }
 
-  inline double top() {
+  inline double top() const {
     return _top;
   }
 
-  inline double bottom() {
+  inline double bottom() const {
     return _bottom;
   }
 
-  inline double gridRes() {
+  inline double gridRes() const {
     return _res;
   }
 
@@ -242,7 +244,7 @@ public:
    *
    * @return 1 if at least 1 reagion is waiting to be allocated, 0 otherwise.
    */
-  inline int needsAllocation() {
+  inline int needsAllocation() const {
     return _marked.size() > 0;
   }
 
@@ -264,18 +266,22 @@ public:
 
       if (newLeft < _left) {
         _left = newLeft;
+        //std::cout << "l: " << _left << std::endl;
       }
 
       if (newTop > _top) {
         _top = newTop;
+        //std::cout << "t: " << _top << std::endl;
       }
 
       if (newLeft + _rWidth > _right) {
         _right = newLeft + _rWidth;
+        //std::cout << "r: " << _right << std::endl;
       }
 
       if (newTop - _rHeight < _bottom) {
         _bottom = newTop - _rHeight;
+        //std::cout << "b: " << _bottom << std::endl;
       }
 
       _regions[iter->first][iter->second] = new GridRegion<T>(this, newLeft, newTop);

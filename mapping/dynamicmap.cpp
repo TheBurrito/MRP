@@ -40,6 +40,7 @@ void DynamicMap::update(const double& x, const double& y, const double& odds) {
 
   if (!v) {
     //std::cout << "Grid location not allocated yet. Aborting update." << std::endl;
+    _grd->allocateRegion(x, y);
     return;
   }
   //std::cout << *v << std::endl;
