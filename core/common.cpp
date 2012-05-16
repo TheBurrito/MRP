@@ -34,7 +34,7 @@ bool getNextPoint(std::istream& is, double& x, double& y) {
 	return true;
 }
 
-double getSecs() {
+/*double getSecs() {
 	double s;
 	
 	timespec now;
@@ -42,4 +42,4 @@ double getSecs() {
 
 	s = now.tv_sec + now.tv_nsec / 1000000000.0;
 	return s;
-}
+}*/

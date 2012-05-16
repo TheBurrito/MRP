@@ -9,6 +9,11 @@ typedef struct {
 } Pos2;
 
 typedef struct {
+  Pos2 a;
+  Pos2 b;
+} LineSeg;
+
+typedef struct {
 	double theta;
 	double d;
 } Polar2;
@@ -42,6 +47,24 @@ inline bool operator<(const Pos2& a, const Pos2& b) {
   } else {
     return a.y < b.y;
   }
+}
+
+inline bool operator==(const Pos2& a, const Pos2& b) {
+  return a.x == b.x && a.y == b.y;
+}
+
+inline Pos2 operator-(const Pos2& a, const Pos2& b) {
+  Pos2 c;
+  c.x = a.x - b.x;
+  c.y = a.y - b.y;
+  return c;
+}
+
+inline Pos2 operator+(const Pos2& a, const Pos2& b) {
+  Pos2 c;
+  c.x = a.x + b.x;
+  c.y = a.y + b.y;
+  return c;
 }
 
 inline Pose operator-(const Pose& a, const Pose& b) {

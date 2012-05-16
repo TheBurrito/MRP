@@ -114,6 +114,7 @@ public:
   DynamicGrid(const double& res, const double& regWidth,
       const double& regHeight, const T& defVal) {
     _res = res;
+    _res_2 = res / 2.0;
 
     //The resolution will remain as specified, but we'll fudge the requested
     //width and height to make sure everything is evenly divisible.
@@ -346,7 +347,7 @@ private:
   /**
    * The resolution of grid cells, in meters.
    */
-  double _res;
+  double _res, _res_2;
 
   /**
    * The size, in cells, of a single GridRegion.

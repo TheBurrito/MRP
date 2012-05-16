@@ -30,29 +30,29 @@ public:
   DynamicMap(const double& res, const double& regWidth, const double& regHeight,
       const double& defVal);
 
-  virtual double get(const double& x, const double& y);
+  virtual double get(const double& x, const double& y) const;
 
   virtual void update(const double& x, const double& y, const double& odds);
 
   virtual void update(const Pos2VList& pts);
 
-  virtual double envWidth();
+  virtual double envWidth() const;
 
-  virtual double envHeight();
+  virtual double envHeight() const;
 
-  virtual double envLeft();
+  virtual double envLeft() const;
 
-  virtual double envRight();
+  virtual double envRight() const;
 
-  virtual double envTop();
+  virtual double envTop() const;
 
-  virtual double envBottom();
+  virtual double envBottom() const;
 
-  virtual double gridRes();
+  virtual double gridRes() const;
 
   virtual void discretizePoints(PosPolList& pts) const;
 
-  int needsAllocation();
+  int needsAllocation() const;
 
   void doRegionAllocations();
 

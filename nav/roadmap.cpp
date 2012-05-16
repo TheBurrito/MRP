@@ -1,0 +1,246 @@
+#include "nav/roadmap.h"
+
+#include <fstream>
+#include <set>
+#include <map>
+#include <cstdio>
+#include <algorithm>
+#include <queue>
+
+struct SearchNode {
+  Pos2 p;
+  SearchNode* parent;
+  double g;
+  double h;
+  inline double f() const {
+    return g + h;
+  }
+};
+
+class SNComp {
+public:
+  bool operator()(const SearchNode& a, const SearchNode& b) {
+    return a.f() < b.f();
+  }
+};
+
+Roadmap::Roadmap() {
+
+}
+
+Roadmap::Roadmap(std::string filename) {
+  loadFromFile(filename);
+}
+
+int Roadmap::loadFromFile(std::string filename) {
+  std::ifstream in(filename.c_str());
+  std::string aName, bName;
+  std::map<std::string, Pos2> pNames;
+
+  size_t np, ne;
+  Pos2 a, b;
+
+  points.clear();
+  edges.clear();
+
+  in >> np >> ne;
+
+  for (size_t i = 0; i < np; ++i) {
+    in >> aName >> a.x >> a.y;
+    points.push_back(a);
+    pNames[aName] = a;
+  }
+
+  for (size_t i = 0; i < ne; ++i) {
+    in >> aName >> bName;
+    a = pNames[aName];
+    b = pNames[bName];
+    if (!addEdge(a, b)) {
+      in.close();
+      return 1;
+    }
+  }
+
+  in.close();
+  return 0;
+}
+
+int Roadmap::saveToFile(std::string filename) const {
+  std::ofstream out(filename.c_str());
+  size_t id = 0;
+  char name[10];
+  std::string bName;
+
+  std::map<Pos2, std::string> pNames;
+  EdgeMap::const_iterator eIter; //edge Iterator
+  Pos2VList::iterator nIter; //neighbor iterator
+
+  out << points.size() << " " << edges.size() << std::endl;
+  for (size_t i = 0; i < points.size(); ++i) {
+    sprintf(name, "%d", id++);
+    pNames[points[i]] = std::string(name);
+    out << name << points[i].x << " " << points[i].y << std::endl;
+  }
+
+  for (eIter = edges.begin(); eIter != edges.end(); ++eIter) {
+    Pos2VList neighbors = eIter->second;
+    strcpy(name, pNames[eIter->first].c_str());
+
+    for (nIter = neighbors.begin(); nIter != neighbors.end(); ++nIter) {
+      bName = pNames[(*nIter).p];
+      out << name << " " << bName.c_str() << std::endl;
+    }
+  }
+
+  out.close();
+  return 0;
+}
+
+bool Roadmap::addEdge(const Pos2& a, const Pos2& b) {
+  Pos2V ab, ba;
+  ab.p = b;
+  ba.p = a;
+
+  ab.v = dist(a.x - b.x, a.y - b.y);
+  ba.v = ab.v;
+
+  //TODO: Check if points/edges already exist
+
+  edges[a].push_back(ab);
+  edges[b].push_back(ba);
+
+  return true;
+}
+
+Path * Roadmap::getPath(const Pos2& start, const Pos2& end) {
+  //The path that's being built
+  Path *path = new Path();
+
+  //The roadmap points that are closest to the start and end points.
+  Pos2 sClosest, eClosest;
+
+  //The list of points connected to the closest start and closest end points.
+  Pos2VList sNeighbors, eNeighbors;
+
+  //The point currently being generated along a roadmap edge.
+  Pos2V curPt;
+
+  //The intermediate points chosen along segments as the entrance and exit to
+  //the roadmap.
+  Pos2V startPt, endPt;
+  startPt.v = -1;
+  endPt.v = -1;
+
+  sClosest = *(closestPoint(points, start));
+  eClosest = *(closestPoint(points, end));
+
+  sNeighbors = edges[sClosest];
+  eNeighbors = edges[eClosest];
+
+  //Find the closest on-edge point to the starting point
+  for (Pos2VList::iterator i = sNeighbors.begin(); i != sNeighbors.end(); ++i) {
+    curPt.p = closestOnLine(sClosest, i->p, start, true);
+    curPt.v = pointDist(curPt.p, start);
+    if (curPt.v < startPt.v || startPt.v < 0) {
+      startPt = curPt;
+    }
+  }
+
+  //Find closest on-edge point to the end point
+  for (Pos2VList::iterator i = eNeighbors.begin(); i != eNeighbors.end(); ++i) {
+    curPt.p = closestOnLine(eClosest, i->p, end, true);
+    curPt.v = pointDist(curPt.p, end);
+    if (curPt.v < endPt.v || endPt.v < 0) {
+      endPt = curPt;
+    }
+  }
+
+  //We can now path find from sClosest to eClosest and just add the extra points
+
+  SearchNode *curNode = new SearchNode(), *parent;
+
+  Pos2List visited;
+  std::priority_queue<SearchNode, std::vector<SearchNode>, SNComp> frontier;
+
+  Pos2VList neighbors;
+
+  std::deque<Pos2> tmpPath;
+
+  curNode->parent = 0;
+  curNode->g = 0;
+  curNode->h = pointDist(sClosest, end);
+  curNode->p = sClosest;
+
+  frontier.push(*curNode);
+
+  while (!frontier.empty()) {
+    curNode = (SearchNode *)&(frontier.top());
+    frontier.pop();
+
+    //Skip nodes that have already been visited.
+    if (std::find(visited.begin(), visited.end(), curNode->p)
+        != visited.end()) {
+      delete curNode;
+      continue;
+    }
+
+    //Check if goal
+    if (curNode->p == eClosest) {
+      break;
+    }
+
+    //Get current neighbors and store parent node for backtrack referencing.
+    neighbors = edges[curNode->p];
+    parent = curNode;
+
+    //Create the search nodes for each neighbor and add to frontier
+    for (Pos2VList::iterator i = neighbors.begin(); i != neighbors.end(); ++i) {
+      curNode = new SearchNode();
+      curNode->parent = parent;
+      curNode->p = i->p;
+      curNode->g = parent->g + i->v;
+      curNode->h = pointDist(curNode->p, end);
+      frontier.push(*curNode);
+    }
+  }
+
+  //Trace backwards from curNode
+  while (curNode) {
+    tmpPath.push_back(curNode->p);
+    curNode = curNode->parent;
+  }
+
+  //Now check if the second point is one of the sNeighbors and remove the first
+  //point
+  curPt.p = *(tmpPath.begin() + 1);
+  for (Pos2VList::iterator i = sNeighbors.begin(); i != sNeighbors.end(); ++i) {
+    if (curPt.p == i->p) {
+      tmpPath.pop_front();
+      break;
+    }
+  }
+
+  //Check 2nd to last point and remove last point if it is in eNeighbors
+  if (tmpPath.size() > 1) {
+    curPt.p = *(tmpPath.end() - 2);
+    for (Pos2VList::iterator i = eNeighbors.begin(); i != eNeighbors.end();
+        ++i) {
+      if (curPt.p == i->p) {
+        tmpPath.pop_back();
+        break;
+      }
+    }
+  }
+
+  //Add generated points to path
+  tmpPath.push_front(startPt.p);
+  tmpPath.push_back(endPt.p);
+
+  //Now dump the path into the Path instance.
+  for (std::deque<Pos2>::iterator i = tmpPath.begin(); i != tmpPath.end();
+      ++i) {
+    path->addPoint(*i);
+  }
+
+  return path;
+}

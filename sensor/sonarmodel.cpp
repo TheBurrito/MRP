@@ -49,8 +49,8 @@ SonarIterativeRegion::SonarIterativeRegion(const double& dTh, const double& dd,
   _res_2 = res / 2;
 }
 
-void SonarIterativeRegion::buildRegion(SensorRanger *sensor, const Pose& robot,
-    size_t idx, const Pose& geom) {
+void SonarIterativeRegion::buildRegion(SensorRanger *sensor, const Map& map,
+    const Pose& robot, size_t idx, const Pose& geom) {
 
   double dist, end, yaw;
   PosPol pt;

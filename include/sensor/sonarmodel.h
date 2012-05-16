@@ -33,8 +33,8 @@ public:
   SonarIterativeRegion(const double& dTh, const double& dd,
       const double& beamWidth, const double& res);
 
-  virtual void buildRegion(SensorRanger *sensor, const Pose& robot, size_t idx,
-        const Pose& geom);
+  virtual void buildRegion(SensorRanger *sensor, const Map& map,
+      const Pose& robot, size_t idx, const Pose& geom);
 
 private:
   double _dTh, _dd;

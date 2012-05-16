@@ -17,7 +17,7 @@ DynamicMap::DynamicMap(const double& res, const double& regWidth,
   //std::cout << "Finished initializing map instance." << std::endl;
 }
 
-double DynamicMap::get(const double& x, const double& y) {
+double DynamicMap::get(const double& x, const double& y) const {
   //std::cout << "Getting map value at (" << x << ", " << y << ")" << std::endl;
 
   double *v = _grd->get(x, y);
@@ -47,12 +47,14 @@ void DynamicMap::update(const double& x, const double& y, const double& odds) {
 }
 
 void DynamicMap::discretizePoints(PosPolList& pts) const {
-  std::map<double *, PosPol *> vals;
+  /*std::map<double *, PosPol *> vals;
   std::map<double *, PosPol *>::iterator iter;
 
-  std::map<PosPol *, bool> rem;
+  bool closer, medial;
 
   PosPolList::iterator ptIter;
+
+  std::map<PosPol *, bool> rem;
 
   double *p;
   size_t n;
@@ -61,25 +63,48 @@ void DynamicMap::discretizePoints(PosPolList& pts) const {
 
   for (size_t i = 0; i < n; ++i) {
     p = _grd->get(pts[i].pos.x, pts[i].pos.y);
+
+    //std::cout << "(" << pts[i].pos.x << ", " << pts[i].pos.y << ") -> " << p << std::endl;
+
     if (p) {
       iter = vals.find(p);
-      if (iter != vals.end() && iter->second->pol.d < pts[i].pol.d) {
-        rem[iter->second] = true;
+      if (iter != vals.end() ) {
+        //These conditions are applied to the existing values
+        //IE Is the existing value closer / more medial?
+
+        closer = iter->second->pol.d < pts[i].pol.d
+        if (iter->second->pol.d < pts[i].pol.d) {
+          std::cout << "Found and reset older" << std::endl;
+          rem[iter->second] = true;
+          vals[p] = &pts[i];
+          rem[&pts[i]] = false;
+        } else {
+          std::cout << "Found and keep older" << std::endl;
+          rem[&pts[i]] = true;
+        }
+
+        std::cout << "\t" << iter->second->pol.d << " | " << pts[i].pol.d;
+        std::cout << ", " << iter->second->pol.theta << " | " << pts[i].pol.theta << std::endl;
+      } else {
+        std::cout << "Not found" << std::endl;
+        std::cout << "\t" << pts[i].pol.d << " | " << pts[i].pol.theta << std::endl;
+        vals[p] = &pts[i];
+        rem[&pts[i]] = false;
       }
-
-      rem[&pts[i]] = false;
-
     } else {
+      //std::cout << "\tMarking grid for allocation." << std::endl;
       _grd->allocateRegion(pts[i].pos.x, pts[i].pos.y);
     }
   }
 
-  for (size_t i = 0; i < pts.size(); ++i) {
-    if (rem[&pts[i]]) {
-      pts.erase(pts.begin() + i);
-      --i;
+  //std::cout << std::endl;
+
+  for (ptIter = pts.begin(); ptIter != pts.end(); ++ptIter) {
+    if (rem[&(*ptIter)]) {
+      //std::cout << "Removing (" << ptIter->pos.x << ", " << ptIter->pos.y << ")" << std::endl;
+      ptIter = pts.erase(ptIter) - 1;
     }
-  }
+  }*/
 }
 
 void DynamicMap::update(const Pos2VList& pts) {
@@ -108,34 +133,34 @@ void DynamicMap::update(const Pos2VList& pts) {
   }
 }
 
-double DynamicMap::envWidth() {
+double DynamicMap::envWidth() const {
   return _grd->width();
 }
 
-double DynamicMap::envHeight() {
+double DynamicMap::envHeight() const {
   return _grd->height();
 }
-double DynamicMap::envLeft() {
+double DynamicMap::envLeft() const {
   return _grd->left();
 }
 
-double DynamicMap::envRight() {
+double DynamicMap::envRight() const {
   return _grd->right();
 }
 
-double DynamicMap::envTop() {
+double DynamicMap::envTop() const {
   return _grd->top();
 }
 
-double DynamicMap::envBottom() {
+double DynamicMap::envBottom() const {
   return _grd->bottom();
 }
 
-double DynamicMap::gridRes() {
+double DynamicMap::gridRes() const {
   return _grd->gridRes();
 }
 
-int DynamicMap::needsAllocation() {
+int DynamicMap::needsAllocation() const {
   return _grd->needsAllocation();
 }
 

@@ -20,7 +20,7 @@ public:
    * @param y The y coordinate of the position in the world to retrieve.
    * @return The odds of an obstacle at that location in the world.
    */
-  virtual double get(const double& x, const double& y)=0;
+  virtual double get(const double& x, const double& y) const =0;
 
   /**
    * Updates a single point's odds of an obstacle with new evidence. Note that
@@ -52,43 +52,51 @@ public:
    */
   virtual void discretizePoints(PosPolList& pts) const =0;
 
+  inline void quantize(double& x, double& y) const;
+
   /**
    * Reports the width of the environment stored in the map in units of meters.
    * @return The width of the current map in meters.
    */
-  virtual double envWidth()=0;
+  virtual double envWidth() const =0;
 
   /**
    * Reports the height of the environment stored in the map in units of meters.
    * @return The height of the current map in meters.
    */
-  virtual double envHeight()=0;
+  virtual double envHeight() const =0;
 
   /**
    * @return The x coordinate on the left edge of the environment.
    */
-  virtual double envLeft()=0;
+  virtual double envLeft() const =0;
 
   /**
    * @return The x coordinate on the right edge of the environment.
    */
-  virtual double envRight()=0;
+  virtual double envRight() const =0;
 
   /**
    * @return The y coordinate on the top edge of the environment.
    */
-  virtual double envTop()=0;
+  virtual double envTop() const =0;
 
   /**
    * @return The y coordinate on the bottom edge of the environment.
    */
-  virtual double envBottom()=0;
+  virtual double envBottom() const =0;
 
   /**
    * Reports the resolution of a grid cell.
    * @return The length of a side of a grid, in meters.
    */
-  virtual double gridRes()=0;
+  virtual double gridRes() const =0;
 };
+
+void Map::quantize(double& x, double& y) const {
+  double r = gridRes();
+  x = r * (floor(x / r) + 0.5);
+  y = r * (floor(y / r) + 0.5);
+}
 
 #endif /* map_h_ */

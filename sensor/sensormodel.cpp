@@ -100,11 +100,11 @@ const PosPolList& SensorRegion::generateRegion(SensorRanger *sensor,
     geom = sensor->getGeom(0);
   }
 
-  buildRegion(sensor, robot, idx, geom);
+  buildRegion(sensor, map, robot, idx, geom);
 
   //std::cout << "Points before disc: " << _pts.size() << std::endl;
 
-  map.discretizePoints(_pts);
+  //map.discretizePoints(_pts);
 
   //std::cout << "Points after: " << _pts.size() << std::endl;
 

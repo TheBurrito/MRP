@@ -107,7 +107,7 @@ protected:
    * @param idx The index of the physical sensor to generate a region for.
    * @param geom The layout of the physical sensor relative to the robot.
    */
-  virtual void buildRegion(SensorRanger *sensor, const Pose& robot, size_t idx,
+  virtual void buildRegion(SensorRanger *sensor, const Map& map, const Pose& robot, size_t idx,
       const Pose& geom)=0;
 
   PosPolList _pts;
