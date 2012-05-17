@@ -3,5 +3,6 @@ add_library(
 
 	mrp_mapping
 	
+	  map.cpp
 		dynamicmap.cpp
 )

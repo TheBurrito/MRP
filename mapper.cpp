@@ -50,6 +50,10 @@ static void display() {
   //cout << w << ", " << h << endl;
 
   double W = w / (double) WIN_X, H = h / (double) WIN_Y;
+
+  W = W > H ? W : H;
+  H = H > W ? H : W;
+
   double l = pMap->envLeft() + pMap->gridRes() / 2;
   double t = pMap->envTop() - pMap->gridRes() / 2;
 
@@ -94,7 +98,7 @@ static void display() {
           glColor3f(0.0, 0.0, 0.0);
         }
       } else {
-        glColor3f(p, c, 0.0);
+        glColor3f(c, c, c);
       }
 
       glVertex2i(xi, WIN_Y - yi);
@@ -118,9 +122,12 @@ void redisplay() {
 void* robotLoop(void* args) {
 
   cout << "Instantiating map instance..." << flush;
-  pMap = dMap = new DynamicMap(0.1, 5, 5, 1.0);
+  //pMap = dMap = new DynamicMap(0.066, 5, 5, 1.0);
+  pMap = dMap = DynamicMap::loadMap("map", 5, 5);
   cout << "Done" << endl;
   //return 0;
+
+  //pMap->loadMap("map.map");
 
   //int draw = 0, loopsPerPixel = 10;
 
@@ -129,7 +136,7 @@ void* robotLoop(void* args) {
   SensorSonar sSonar(pSonar, &Pioneer8Sonar[0], 8, 0, 5.0);
 
   SonarProfile sProf(7.0, 3.0, 0.5, dtor(30), 0.2);
-  SonarIterativeRegion sReg(dtor(2), 0.1, dtor(30), 0.2);
+  SonarIterativeRegion sReg(dtor(2), 0.066, dtor(30), 0.2);
   SensorModel sonar(&sSonar, &sReg, &sProf, PtoO(.7));
 
   /*                       sonar,     dTh,  dd, obs, clr,    beamW, res*/
@@ -157,7 +164,9 @@ void* robotLoop(void* args) {
     } catch (PlayerError& e) {
       //while (true) {
       cout << e << endl;
-      continue;
+      pMap->saveMap("map");
+      cout << "map saved." << endl;
+      while(1);
       //}
     }
 

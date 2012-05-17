@@ -32,6 +32,8 @@ public:
 
   virtual double get(const double& x, const double& y) const;
 
+  virtual void set(const double& x, const double& y, const double& odds);
+
   virtual void update(const double& x, const double& y, const double& odds);
 
   virtual void update(const Pos2VList& pts);
@@ -55,6 +57,9 @@ public:
   int needsAllocation() const;
 
   void doRegionAllocations();
+
+  static DynamicMap* loadMap(std::string filename,
+      const double& regWidth, const double& regHeight);
 
 private:
 

@@ -4,8 +4,19 @@
 #include "core/types.h"
 #include "core/common.h"
 
-inline double OtoP(const double& odd) { return (odd / (odd + 1)); }
-inline double PtoO(const double& prob) { return (prob / (1 - prob)); }
+//Establishes that maximum value that should be allowed as an assigned odds
+//value. This is not enforced, but allows for a common parameter that may be
+//used in sub classes / subsequent code.
+#define MAX_ODDS 100000
+
+inline double OtoP(const double& odd) {
+  return (odd / (odd + 1));
+}
+inline double PtoO(const double& prob) {
+  return (prob / (1 - prob));
+}
+
+//To use the following load* save* functions, make sure you link against mrp_io
 
 /**
  * Defines the interface for a map representation.
@@ -21,6 +32,15 @@ public:
    * @return The odds of an obstacle at that location in the world.
    */
   virtual double get(const double& x, const double& y) const =0;
+
+  /**
+   * Provides functionality for directly setting the value at a specific point.
+   *
+   * @param x The x coordinate of the position to set.
+   * @param y The y coordinate of the position to set.
+   * @param odds The odds to set that the specified point.
+   */
+  virtual void set(const double& x, const double& y, const double& odds)=0;
 
   /**
    * Updates a single point's odds of an obstacle with new evidence. Note that
@@ -91,6 +111,40 @@ public:
    * @return The length of a side of a grid, in meters.
    */
   virtual double gridRes() const =0;
+
+  /**
+   * Loads a map from a Jpeg image using the specified origin.
+   *
+   * @param map The map to load the data into.
+   * @param filename The name of the jpeg image to load. Should include the .jpg
+   * or .jpeg extension.
+   * @param left The x-coordinate that corresponds to the left edge of the jpeg.
+   * @param top The y-coordinate that corresponds to the top edge of the jpeg.
+   * @return 0 on success, any other value indicates an error.
+   */
+  int loadMapPng(std::string filename, const double& left, const double& top);
+
+  /**
+   * Given a map instance and a map filename, saves the map data out to the
+   * specified filename.
+   * @param map The map instance to save.
+   * @param filename The name of the file to save the map in. IF THE FILE ALREADY
+   * EXISTS, IT WILL BE OVERRIDDEN.
+   * @return 0 on success, any other value indicates an error.
+   */
+  int saveMap(std::string filename);
+
+  /**
+   * Saves the map data as a Jpeg image.
+   *
+   * @param map The map instance to save as a Jpeg.
+   * @param filename The name of the file to save the image as. Note that the
+   * string passed in should include the .jpg or .jpeg extension as this function
+   * does not ensure the extension is there itself. (Yet)
+   * @return 0 on success, any other value indicates an error.
+   */
+  int saveMapPng(std::string filename);
+
 };
 
 void Map::quantize(double& x, double& y) const {
