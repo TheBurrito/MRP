@@ -1,5 +1,5 @@
 This source tree is for assignments in the Mobile Robot Programming course at
 Rochester Institute of Technology.
 
-Most of the core code written by Derrick Bommarito, with contributions from Max
-and Mike.
+Code written by Derrick Bommarito. Nearly all input is abstracted out and can be
+adapted for nearly any ranging sensor useful for mapping.
