@@ -198,12 +198,20 @@ void * navLoop(void *arg) {
    * than this number, a new path must be generated.
    */
   size_t lastGen = -1;
+
+  Path *curPath;
+
   waitReady();
 
   while (true) {
     sleep(0);
     if (!localized) {
       continue;
+    }
+
+    if (lastGen < curWaypt) {
+      //Need to generate a path
+
     }
 
     //TODO Navigation logic
