@@ -1,0 +1,39 @@
+#!/bin/bash
+
+defmap=gccis3.map
+
+host=-1
+port=-1
+wayptI=1
+
+hasHost=0
+hasPort=0
+hasMap=0
+
+arg1=""
+arg2=""
+waypt=""
+map=""
+
+if [ ! -e "$1" ]; then
+  arg1="$1"
+  shift
+fi
+
+if [ ! -e "$1" ]; then
+  arg2="$1"
+  shift
+fi
+
+waypt="$1"
+map="$defmap"
+
+shift
+
+if [ ! -z "$1" ]; then
+  map="$1"
+fi
+
+./navigate $arg1 $arg2 $waypt $map
+
+

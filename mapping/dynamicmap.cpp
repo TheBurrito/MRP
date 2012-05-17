@@ -22,9 +22,10 @@ DynamicMap::DynamicMap(const double& res, const double& regWidth,
 DynamicMap * DynamicMap::loadMap(std::string filename, const double& regWidth,
     const double& regHeight) {
   std::string pngfile;
+  std::string mapfile = "maps/" + filename;
   double res, left, top;
 
-  std::ifstream in(filename.c_str(), std::ifstream::in);
+  std::ifstream in(mapfile.c_str(), std::ifstream::in);
 
   in >> pngfile;
   in >> res;
@@ -34,7 +35,7 @@ DynamicMap * DynamicMap::loadMap(std::string filename, const double& regWidth,
   in.close();
 
   DynamicMap *map = new DynamicMap(res, regWidth, regHeight, 1.0);
-  map->loadMapPng(pngfile, left, top);
+  map->loadMapPng("maps/" + pngfile, left, top);
   return map;
 }
 

@@ -102,8 +102,8 @@ int Map::loadMapPng(std::string filename, const double& left,
   double o;
   int c = png_get_channels(png_ptr, info_ptr);
   int rowbytes = png_get_rowbytes(png_ptr, info_ptr);
-  std::cout << "channels: " << c << std::endl;
-  std::cout << "rowbytes: " << rowbytes << std::endl;
+  //std::cout << "channels: " << c << std::endl;
+  //std::cout << "rowbytes: " << rowbytes << std::endl;
   size_t n = 0;
   unsigned char v;
 

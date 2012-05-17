@@ -7,6 +7,7 @@
 
 #include "mapping/dynamicmap.h"
 #include <iostream>
+#include <fstream>
 
 void usage(char *ex) {
   std::cerr << "Usage: " << ex
@@ -48,17 +49,14 @@ int main(int argc, char **argv) {
   std::string jpegfile(argv[4]);
   std::string mapfile(argv[5]);
 
-  DynamicMap map(res, 5, 5, 1.0);
+  std::ofstream out(mapfile.c_str(), std::ofstream::out);
 
-  /*if (map.loadMapJpeg(jpegfile, res, left, top)) {
-    std::cerr << "Error loading data from jpeg image." << std::endl;
-    exit(2);
-  }
+  out << jpegfile << std::endl;
+  out << res << std::endl;
+  out << left << std::endl;
+  out << top << std::endl;
 
-  if (map.saveMap(mapfile)) {
-    std::cerr << "Error saving map data to file." << std::endl;
-    exit(3);
-  }*/
+  out.close();
 
   return 0;
 }

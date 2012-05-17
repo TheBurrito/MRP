@@ -8,6 +8,8 @@ typedef struct {
 	double y;
 } Pos2;
 
+typedef std::vector<Pos2> Pos2List;
+
 typedef struct {
   Pos2 a;
   Pos2 b;
@@ -25,7 +27,12 @@ typedef struct {
 	double yaw;
 } Pose;
 
-typedef std::vector<Pos2> Pos2List;
+typedef struct {
+  Pose pose;
+  double v;
+} PoseV;
+
+typedef std::vector<PoseV> PoseVList;
 
 typedef struct {
 	Pos2 pos;

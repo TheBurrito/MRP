@@ -41,6 +41,37 @@ if (DOXYGEN_FOUND)
   )
 endif(DOXYGEN_FOUND)
 
+#check if doing an out of source build and copy over required files
+if (NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/CMakeLists.txt)
+  configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/navigator
+    ${CMAKE_CURRENT_BINARY_DIR}/navigator
+  )
+  
+  #copy maps over to build directory
+  FILE(REMOVE_RECURSE ${CMAKE_CURRENT_BINARY_DIR}/maps)
+  FILE(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/maps)
+  execute_process(
+    
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+      
+      ${CMAKE_SOURCE_DIR}/maps
+      ${CMAKE_BINARY_DIR}/maps
+  )
+  
+  #copy nav points files over to build directory
+  FILE(REMOVE_RECURSE ${CMAKE_CURRENT_BINARY_DIR}/points)
+  FILE(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/points)
+  execute_process(
+    
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+      
+      ${CMAKE_SOURCE_DIR}/points
+      ${CMAKE_BINARY_DIR}/points
+  )
+                                                           
+endif (NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/CMakeLists.txt)
+
 #INCLUDE (dab5267_mrp.cmake)
 #PLAYER_ADD_PLAYERCPP_CLIENT (dummy SOURCES dummy.cpp)
 
@@ -63,6 +94,8 @@ add_subdirectory(mapping)
 
 #Classes/algorithms for path planning
 add_subdirectory(nav)
+
+add_subdirectory(localization)
 
 
 #Tool for creating map files for a png file
@@ -108,7 +141,7 @@ target_link_libraries(
 #Final project executable
 PLAYER_ADD_PLAYERCPP_CLIENT(
   
-  navigator
+  navigate
   
   SOURCES
     navigator.cpp
@@ -117,7 +150,7 @@ PLAYER_ADD_PLAYERCPP_CLIENT(
 )
 target_link_libraries(
   
-  navigator 
+  navigate 
   
     ${STD_LIBS} 
     ${DRAWING_LIBS} 
@@ -126,4 +159,8 @@ target_link_libraries(
     mrp_core
     mrp_sensor
     mrp_mapping
+    mrp_localization
+    mrp_apf
+    mrp_goto
+    mrp_nav
 )

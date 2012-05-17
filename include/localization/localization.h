@@ -5,7 +5,6 @@
 
 class Localization {
 public:
-  Pose getError(const Pose& robot, const Pose& dPose)=0;
 };
 
 #endif /* localization_h_ */
