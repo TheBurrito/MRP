@@ -24,6 +24,8 @@ find_package(Doxygen)
 
 if (EXISTS /usr/local/dcs)
   include_directories(/usr/local/dcs/include/player-3.0)
+else (EXISTS /usr/local/dcs)
+  include_directories(/usr/local/include/player-3.0)
 endif (EXISTS /usr/local/dcs)
 
 if (DOXYGEN_FOUND)
