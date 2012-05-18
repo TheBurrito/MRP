@@ -10,6 +10,7 @@
 #include "localization/localparticle.h"
 #include "nav/roadmap.h"
 #include "apf/mindistcalc.h"
+#include "visualization/viswindow.h"
 
 #include <pthread.h>
 #include <unistd.h>
@@ -30,8 +31,10 @@ using namespace PlayerCc;
 
 /*
  * The number of particles to use for localization.
+ *
+ * BM NumParts
  */
-#define NUM_PARTICLES 300
+#define NUM_PARTICLES 500
 
 /*
  * The threshhold for waypoint arrival in meters. Defined by the project
@@ -129,6 +132,7 @@ pthread_t thrNav;
 pthread_t thrLocal;
 pthread_t thrDrive;
 pthread_t thrMission;
+pthread_t thrVis;
 
 SensorSonar *sSonar;
 SonarProfile *sProf;
@@ -144,6 +148,18 @@ Pos2 drvCmd;
 
 ParticleLocalization *pLocal;
 
+VisImage *im;
+
+bool drawing = false;
+volatile bool localizing = false;
+
+PoseV estPose;
+
+double cDir[] = {0.7, 0.7, 0.0};
+double cOdom[] = {0.0, 0.6, 0.0};
+double cLoc[] = {0.0, 0.0, 0.7};
+double cPt[] = {0.8, 0.0, 0.0};
+
 /**
  * Simple function used to block threads until the ready flag is set.
  */
@@ -153,11 +169,84 @@ void waitReady() {
   }
 }
 
+double W, H, w, h, l, t;
+inline void drawPose(VisImage *im, const Pose& p, double *c) {
+  size_t xi = (p.p.x - l) / W;
+  size_t yi = (t - p.p.y) / H;
+  VisSetPx(im, xi, yi, c);
+
+  double x = p.p.x + cos(p.yaw);
+  double y = p.p.y + sin(p.yaw);
+
+  xi = (x - l) / W;
+  yi = (t - y) / H;
+  VisSetPx(im, xi, yi, cDir);
+}
+
+void visRefresh() {
+  //BM visLoop
+  drawing = true;
+  w = pMap->envWidth();
+  h = pMap->envHeight();
+
+  //cout << w << ", " << h << endl;
+
+  W = w / im->width;
+  H = h / im->height;
+
+  //Keep the pixel aspect correct
+  W = W > H ? W : H;
+  H = H > W ? H : W;
+
+  l = pMap->envLeft() + pMap->gridRes() / 2;
+  t = pMap->envTop() - pMap->gridRes() / 2;
+
+  size_t idx = 0;
+
+  bool done = false;
+
+  double px[3];
+
+  //Draw the map first
+  for (size_t xi = 0; xi < im->width && !done; ++xi) {
+    double x = (xi * W) + l;
+
+    for (size_t yi = 0; yi < im->height; ++yi) {
+      double y = t - yi * H;
+
+      double c = 1 - OtoP(pMap->get(x, y));
+
+      //std::cout << "\t(" << x << ", " << y << ", " << c << ")" << std::endl;
+
+      px[0] = c;
+      px[1] = c;
+      px[2] = c;
+      VisSetPx(im, xi, yi, px);
+    }
+  }
+
+  PoseVList *pts = pLocal->getParticles();
+
+  for (PoseVList::iterator i = pts->begin(); i != pts->end(); ++i) {
+    drawPose(im, i->pose, cPt);
+  }
+
+  drawPose(im, estPose.pose, cLoc);
+
+  drawPose(im, odomToRobot, cOdom);
+
+  cout << "(" << estPose.pose.p.x << ", " << estPose.pose.p.y << ") ("
+      << odomToRobot.p.x << ", " << odomToRobot.p.y << ")" << endl;
+
+  drawing = false;
+}
+
 /**
  * Handles the overall state control for the robot.
  * @param arg
  */
 void * missionLoop(void *arg) {
+  //BM missonLoop
 
   drvCmd.x = 0;
   drvCmd.y = 0;
@@ -165,7 +254,7 @@ void * missionLoop(void *arg) {
   waitReady();
 
   while (curWaypt < waypoints.size()) {
-    usleep(100);
+    usleep(1000);
 
     if (!navLocal && (localError > LOCAL_THRESH || localError < 0)) {
       navLocal = true;
@@ -179,20 +268,6 @@ void * missionLoop(void *arg) {
       //enough to localize though.
       localNavPt.x = 0.5;
       localNavPt.y = -0.2;
-    }
-
-    try {
-      pRobot->Read();
-
-      odomToRobot.p.x = pPosition->GetXPos();
-      odomToRobot.p.y = pPosition->GetYPos();
-      odomToRobot.yaw = pPosition->GetYaw();
-
-      pPosition->SetSpeed(drvCmd.x, drvCmd.y);
-
-    } catch (PlayerError& e) {
-      cerr << e << endl;
-      exit(1);
     }
   }
 
@@ -213,9 +288,21 @@ void * driveLoop(void *arg) {
   Pos2List obslist;
 
   while (true) {
-    usleep(100000);
+    try {
+      pRobot->Read();
 
-    //TODO Driveloop
+      odomToRobot.p.x = pPosition->GetXPos();
+      odomToRobot.p.y = pPosition->GetYPos();
+      odomToRobot.yaw = pPosition->GetYaw();
+
+      pPosition->SetSpeed(drvCmd.x, drvCmd.y);
+
+    } catch (PlayerError& e) {
+      cerr << e << endl;
+      exit(1);
+    }
+
+    //BM Driveloop
 
     if (navLocal) {
       //Move point into odom space
@@ -254,29 +341,26 @@ void * driveLoop(void *arg) {
 void * localLoop(void *arg) {
 
   Pose prevPose, dPose;
-  PoseV est;
   prevPose.p.x = 0;
   prevPose.p.y = 0;
   prevPose.yaw = 0;
 
   waitReady();
 
-  //TODO Localization loop
+  //BM Localization loop
 
   while (true) {
-    usleep(100);
+    usleep(0);
+
     dPose = odomToRobot - prevPose;
     prevPose = odomToRobot;
 
     pLocal->motionUpdate(dPose);
     pLocal->sensorUpdate();
-    est = pLocal->getPose();
 
-    cout << "+(" << dPose.p.x << ", " << dPose.p.y << ", " << dPose.yaw << ")"
-        << endl;
+    estPose = pLocal->getPose();
 
-    cout << "(" << est.pose.p.x << ", " << est.pose.p.y << ", " << est.pose.yaw
-        << ") : " << est.v << endl;
+    visRefresh();
 
     //localError = est.v;
   }
@@ -388,6 +472,8 @@ void threadError(int err, std::string name) {
 }
 
 void spawnThreads() {
+  //BM spawnThreads
+
   cout << "Spawning threads..." << flush;
   int ret;
 
@@ -411,11 +497,18 @@ void spawnThreads() {
     threadError(ret, "mission");
   }
 
+  /*ret = pthread_create(&thrVis, 0, visLoop, 0);
+   if (ret) {
+   threadError(ret, "visualization");
+   }*/
+
   cout << "Done" << endl;
 }
 
 bool processArgs(int argc, char**argv, std::string& host, int& port,
     std::string& points, std::string& map) {
+
+  //BM processArgs
 
   std::string defHost("localhost");
   int defPort = 6665;
@@ -520,10 +613,17 @@ void initAPF() {
 }
 
 void initLocal() {
-  //TODO Localization init
+  //BM Localization init
 
   cout << "Initializing particle localization..." << flush;
-  pLocal = new ParticleLocalization(sonar, pMap, NUM_PARTICLES, PARTICLE_THRESH, 0.3);
+  pLocal = new ParticleLocalization(sonar, pMap, NUM_PARTICLES, PARTICLE_THRESH,
+      0.3);
+  cout << "Done" << endl;
+}
+
+void initVis() {
+  cout << "Initializing visualization window..." << flush;
+  im = initVis(1000, 450, true, &drawing);
   cout << "Done" << endl;
 }
 
@@ -552,6 +652,7 @@ int main(int argc, char** argv) {
   loadMap(mapfile);
   loadRoadmap("maps/" + roadmapfile);
   initLocal();
+  initVis();
 
   spawnThreads();
 

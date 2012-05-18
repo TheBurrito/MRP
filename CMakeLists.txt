@@ -97,6 +97,8 @@ add_subdirectory(nav)
 
 add_subdirectory(localization)
 
+add_subdirectory(visualization)
+
 
 #Tool for creating map files for a png file
 add_executable(
@@ -163,4 +165,5 @@ target_link_libraries(
     mrp_apf
     mrp_goto
     mrp_nav
+    mrp_vis
 )

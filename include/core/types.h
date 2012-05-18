@@ -2,6 +2,7 @@
 #define types_h_
 
 #include <vector>
+#include <cmath>
 
 typedef struct {
 	double x;
@@ -87,8 +88,10 @@ inline Pose operator-(const Pose& a, const Pose& b) {
 inline Pose operator+(const Pose& a, const Pose& b) {
   Pose pose;
   
-  pose.p.x = a.p.x + b.p.x;
-  pose.p.y = a.p.y + b.p.y;
+  double d = hypot(b.p.x, b.p.y);
+
+  pose.p.x = a.p.x + d * cos(a.yaw);
+  pose.p.y = a.p.y + d * sin(a.yaw);
   pose.yaw = a.yaw + b.yaw;
   
   return pose;

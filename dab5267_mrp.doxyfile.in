@@ -1,5 +1,9 @@
 # Doxyfile 1.8.0
 
+#This doxyfile is meant to be passed through a CMake configure_file call to fill
+# in the source and output location variables. During that configuration the .in
+# extension will be stripped off.
+
 # This file describes the settings to be used by the documentation system
 # doxygen (www.doxygen.org) for a project.
 #

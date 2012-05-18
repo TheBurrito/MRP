@@ -25,6 +25,8 @@ public:
 
   virtual PoseV getPose();
 
+  PoseVList* getParticles() { return &particles; }
+
 private:
 
   /**
