@@ -22,6 +22,10 @@ SET (DRAWING_LIBS ${GLUT_LIBRARY} ${OPENGL_LIBRARY} X11 Xext)
 #Setup the doc target for make to run doxygen
 find_package(Doxygen)
 
+if (EXISTS /usr/local/dcs)
+  include_directories(/usr/local/dcs/include/player-3.0)
+endif (EXISTS /usr/local/dcs)
+
 if (DOXYGEN_FOUND)
   configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/dab5267_mrp.doxyfile.in
