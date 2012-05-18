@@ -34,6 +34,11 @@ if [ ! -z "$1" ]; then
   map="$1"
 fi
 
+echo "1: $arg1"
+echo "2: $arg2"
+echo "3: $waypt"
+echo "4: $map"
+
 ./navigate $arg1 $arg2 $waypt $map
 
 

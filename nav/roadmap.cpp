@@ -34,6 +34,11 @@ Roadmap::Roadmap(std::string filename) {
 
 int Roadmap::loadFromFile(std::string filename) {
   std::ifstream in(filename.c_str());
+
+  if (!in.is_open()) {
+    return 1;
+  }
+
   std::string aName, bName;
   std::map<std::string, Pos2> pNames;
 
@@ -45,16 +50,23 @@ int Roadmap::loadFromFile(std::string filename) {
 
   in >> np >> ne;
 
+  //std::cout << np << " " << ne << std::endl;
+
   for (size_t i = 0; i < np; ++i) {
-    in >> aName >> a.x >> a.y;
+    in >> std::ws >> aName >> a.x >> a.y;
+    //std::cout << aName << " " << a.x << " " << a.y << std::endl;
     points.push_back(a);
     pNames[aName] = a;
   }
 
   for (size_t i = 0; i < ne; ++i) {
     in >> aName >> bName;
+    //std::cout << aName << " " << bName << std::endl;
+
     a = pNames[aName];
     b = pNames[bName];
+
+    //std::cout << "\t(" << a.x << "," << a.y << ")<->(" << b.x << "," << b.y << ")" << std::endl;
     if (!addEdge(a, b)) {
       in.close();
       return 1;

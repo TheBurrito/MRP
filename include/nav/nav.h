@@ -25,7 +25,7 @@ public:
    * @return A path of waypoints to follow to get to the end point. Does not
    * include the starting point and includes the end point.
    */
-  virtual Path* getPath(const Pos2& start, const Pos2& end) const =0;
+  virtual Path* getPath(const Pos2& start, const Pos2& end)=0;
 };
 
 #endif /* NAV_H_ */

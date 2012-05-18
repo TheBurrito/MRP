@@ -48,14 +48,16 @@ double SensorModel::localizationProb(Map& map, const Pose& robot) {
   size_t n;
   PosPolList pts;
   PosPol pt;
-  std::map<double, double> minD; // Map of angle to min distance seen
+  double mind;
+  //std::map<double, double> minD; // Map of angle to min distance seen
 
   for (size_t s = 0; s < num; ++s) {
     pts = _region->generateRegion(_sensor, map, robot, s);
     n = pts.size();
     d = (*_sensor)[s];
+    mind = _sensor->getMax();
 
-    minD.clear();
+    //minD.clear();
 
     /**
      * Iterate over the region and find the closest point in each theta sweep
@@ -64,13 +66,17 @@ double SensorModel::localizationProb(Map& map, const Pose& robot) {
     for (size_t i = 0; i < n; ++i) {
       pt = pts[i];
       if (map.get(pt.pos.x, pt.pos.y) > _obs) {
-        if (minD[pt.pol.theta] > pt.pol.d || minD[pt.pol.theta] == 0) {
+        /*if (minD[pt.pol.theta] > pt.pol.d || minD[pt.pol.theta] == 0) {
           minD[pt.pol.theta] = pt.pol.d;
+        }*/
+
+        if (pt.pol.d < mind) {
+          mind = pt.pol.d;
         }
       }
     }
 
-    dSum = 0;
+    /*dSum = 0;
     oSum = 0;
 
     for (std::map<double, double>::iterator i = minD.begin(); i != minD.end();
@@ -79,11 +85,16 @@ double SensorModel::localizationProb(Map& map, const Pose& robot) {
       oSum += i->second;
     }
 
-    pt.pol.d = dSum / oSum;
-    pt.pol.theta = oSum / minD.size();
+    pt.pol.d = dSum / oSum;*/
+    pt.pol.d = mind;
+    pt.pol.theta = 0;
+
+    //std::cout << pt.pol.d << " ";
 
     p *= OtoP(_prof->getOdds(pt, d));
   }
+
+  //std::cout << std::endl;
 
   return p;
 }

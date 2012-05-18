@@ -39,6 +39,12 @@ inline Pos2 rotate(const Pos2& p, const double& theta) {
   return n;
 }
 
+inline double frand(const double& fMin, const double& range)
+{
+    double f = rand() / (RAND_MAX + 1.0);
+    return fMin + f * range;
+}
+
 /**
  * Given two points that make up a line and a third point, p, determine the
  * closest point on that line to p, optionally clamping the point within the

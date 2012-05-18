@@ -25,6 +25,16 @@ SensorSonar::SensorSonar(SonarProxy *sp, Pose *geom, size_t numSonar,
 
 Pos2List SensorSonar::getLocalScan(double sAng, double eAng) {
   Pos2List pts;
+  Pos2 cur;
+
+  for (size_t i = 0; i < _num; ++i) {
+    cur.x = (*_sp)[i];
+    cur.y = 0;
+    cur = rotate(cur, _geom[i].yaw);
+    cur.x += _geom[i].p.x;
+    cur.y += _geom[i].p.y;
+    pts.push_back(cur);
+  }
 
   return pts;
 }
