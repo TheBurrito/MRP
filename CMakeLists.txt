@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.4)
 PROJECT (dab5267_mrp)
 
 #SET (CMAKE_MODULE_PATH "/usr/local/dcs/share/cmake/Modules")
-#SET (CMAKE_MODULE_PATH "/usr/local/dcs/share/cmake/Modules:/usr/share/cmake-2.8/Modules")
+SET (CMAKE_MODULE_PATH "/usr/local/dcs/share/cmake/Modules:/usr/share/cmake-2.8/Modules")
 INCLUDE (UsePlayerC++)
 
 #Used for visualizing maps / data
