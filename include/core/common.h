@@ -20,7 +20,10 @@ Pos2 polar2Pos(const Polar2& pt);
 
 Polar2 pos2Polar(const Pos2& pt);
 
-void normalizeTheta(double& theta);
+inline void normalizeTheta(double& theta) {
+  while (theta > PI) theta -= PI2;
+  while (theta < -PI) theta += PI2;
+}
 
 bool getNextPoint(std::istream& is, double& x, double& y);
 

@@ -18,14 +18,17 @@ public:
    * to spawn a random pose at a given location.
    */
   ParticleLocalization(SensorModel *sensor, Map *map, size_t numParticles,
-      const double& discardThresh, const double& clearSpaceOdds);
+      const double& discardThresh, const double& clearSpaceOdds,
+      const double& randomChance);
 
   virtual void motionUpdate(const Pose& dPose);
   virtual void sensorUpdate();
 
   virtual PoseV getPose();
 
-  PoseVList* getParticles() { return &particles; }
+  PoseVList* getParticles() {
+    return &particles;
+  }
 
 private:
 
@@ -62,7 +65,7 @@ private:
    * The threshold for discarding unlikely particles, and for ensuring a
    * particle starts in clear space.
    */
-  double thresh, clearOdds;
+  double thresh, clearOdds, randC;
 };
 
 #endif /* localparticle_h_ */

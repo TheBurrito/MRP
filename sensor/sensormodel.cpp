@@ -43,7 +43,7 @@ void SensorModel::updateMap(Map& map, const Pose& robot) {
 
 double SensorModel::localizationProb(Map& map, const Pose& robot) {
   size_t num = _sensor->getRangeCount();
-  double p = 1.0; //Start off with a full probability
+  double o = 1.0; //Start off with a full probability
   double d, dSum, oSum;
   size_t n;
   PosPolList pts;
@@ -91,12 +91,12 @@ double SensorModel::localizationProb(Map& map, const Pose& robot) {
 
     //std::cout << pt.pol.d << " ";
 
-    p *= OtoP(_prof->getOdds(pt, d));
+    o *= _prof->getOdds(pt, d);
   }
 
   //std::cout << std::endl;
 
-  return p;
+  return o;
 }
 
 const PosPolList& SensorRegion::generateRegion(SensorRanger *sensor,

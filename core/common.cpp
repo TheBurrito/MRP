@@ -20,11 +20,6 @@ Polar2 pos2Polar(const Pos2& pt) {
 	return p;
 }
 
-void normalizeTheta(double& theta) {
-	while (theta > PI) theta -= PI2;
-	while (theta < -PI) theta += PI2;
-}
-
 bool getNextPoint(std::istream& is, double& x, double& y) {
 	if (!is.good()) {
 		return false;

@@ -18,7 +18,7 @@ inline double prof(const double& x, const double&d, const double& odds) {
 }
 
 double SonarProfile::getOdds(const PosPol& pt, const double& d) {
-#define CUTOFF 4.0
+#define CUTOFF 5.0
 
   double o, f;
   if (d == 0.0) {
@@ -35,8 +35,28 @@ double SonarProfile::getOdds(const PosPol& pt, const double& d) {
     return 1.0;
   }
 
-  f = 1.0 - (fabs(pt.pol.theta) / _w_2);
-  return pow(o, f);
+  if (pt.pol.theta != 0.0) {
+    f = 1.0 - (fabs(pt.pol.theta) / _w_2);
+    return pow(o, f);
+  } else {
+    return f;
+  }
+}
+
+SonarLocalProfile::SonarLocalProfile(const double& oddObs, const double& oddClr,
+      const double& res) {
+  _res = res;
+  _res_2 = res / 2.0;
+  _clr = oddClr;
+  _obs = oddObs;
+}
+
+double SonarLocalProfile::getOdds(const PosPol& pt, const double& d) {
+  if (pt.pol.d > d - _res_2 && pt.pol.d < d + _res_2) {
+    return _obs;
+  } else {
+    return _clr;
+  }
 }
 
 SonarIterativeRegion::SonarIterativeRegion(const double& dTh, const double& dd,

@@ -28,6 +28,28 @@ private:
   double _d;
 };
 
+class SonarLocalProfile: public SensorOddsProfile {
+public:
+  /**
+   * Stores the various parameters for performing odds calculations from a sonar
+   * sensor.
+   *
+   * @param maxD The max reading of the sonar sensor.
+   * @param oddObs The odds used when calculating odds for a perceived obstacle.
+   * @param oddClr The odds used when calculating odds for clear space.
+   * @param beamWidth The width of the beam, in radians.
+   * @param res The resolution of the sensor, in meters.
+   */
+  SonarLocalProfile(const double& oddObs, const double& oddClr,
+      const double& res);
+
+  virtual double getOdds(const PosPol& pt, const double& d);
+
+private:
+  double _obs, _clr;
+  double _res, _res_2;
+};
+
 class SonarIterativeRegion: public SensorRegion {
 public:
   SonarIterativeRegion(const double& dTh, const double& dd,

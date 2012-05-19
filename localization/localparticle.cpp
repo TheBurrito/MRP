@@ -12,12 +12,13 @@
 
 ParticleLocalization::ParticleLocalization(SensorModel *sensor, Map *map,
     size_t numParticles, const double& discardThresh,
-    const double& clearSpaceOdds) {
+    const double& clearSpaceOdds, const double& chanceRandom) {
   num = numParticles;
   this->sensor = sensor;
   this->map = map;
   thresh = discardThresh;
   clearOdds = clearSpaceOdds;
+  randC = chanceRandom;
 
   for (size_t i = 0; i < num; ++i) {
     spawnRandomParticle();
@@ -27,6 +28,11 @@ ParticleLocalization::ParticleLocalization(SensorModel *sensor, Map *map,
 void ParticleLocalization::motionUpdate(const Pose& dPose) {
   for (PoseVList::iterator i = particles.begin(); i != particles.end(); ++i) {
     i->pose = i->pose + dPose;
+
+    /*if (map->get(i->pose.p.x, i->pose.p.y) > 4.0) {
+      i->v = 0;
+    }*/
+
     while (i->pose.yaw < -PI_2) i->pose.yaw += PI2;
     while (i->pose.yaw > PI_2) i->pose.yaw -= PI2;
   }
@@ -35,8 +41,11 @@ void ParticleLocalization::motionUpdate(const Pose& dPose) {
 void ParticleLocalization::sensorUpdate() {
   double p;
   for (PoseVList::iterator i = particles.begin(); i != particles.end(); ++i) {
-    p = PtoO(sensor->localizationProb(*map, i->pose));
-    i->v *= p;
+    if (map->get(i->pose.p.x, i->pose.p.y) > 4.0) {
+      i->v = 0;
+    } else {
+      i->v *= sensor->localizationProb(*map, i->pose);
+    }
     //std::cout << p << " -> " << i->v << std::endl;
   }
 
@@ -51,19 +60,28 @@ void ParticleLocalization::sensorUpdate() {
   }
 
   //Number of particles we have to now spawn
-  if (particles.size() < num * 0.1) {
+  size_t n = num - particles.size();
+  size_t c = 0, r = 0;
+
+  /*if (particles.size() < num * 0.05) {
     //Spawn all new particles randomly due to lack of population
-    std::cout << "Spawning all random particles." << std::endl;
-    for (size_t i = 0; i < num; ++i) {
+    std::cout << "Spawning " << n << " random particles." << std::endl;
+    for (size_t i = 0; i < n; ++i) {
       spawnRandomParticle();
     }
-  } else {
-    size_t n = num - particles.size();
-    std::cout << "Spawning " << n << " child particles." << std::endl;
+  } else {*/
     for (size_t i = 0; i < n; ++i) {
-      spawnChildParticle(sum);
+      if (frand(0.0, 1.0) < randC) {
+        spawnRandomParticle();
+        ++r;
+      } else {
+        spawnChildParticle(sum);
+        ++c;
+      }
     }
-  }
+
+    std::cout << "Spawned " << c << " children and " << r << " randomly." << std::endl;
+  //}
 }
 
 PoseV ParticleLocalization::getPose() {
@@ -147,7 +165,7 @@ void ParticleLocalization::spawnRandomParticle() {
 
   } while (map->get(p.pose.p.x, p.pose.p.y) > clearOdds);
 
-  p.pose.yaw = frand(-PI_2, PI2);
+  p.pose.yaw = frand(-PI, PI2);
   p.v = 1;
 
   particles.push_back(p);
@@ -173,6 +191,9 @@ void ParticleLocalization::spawnChildParticle(double sum) {
   double r = frand(0.0, sum);
   PoseV child;
 
+  double rp = 0.2;
+  double ry = 0.3;//PI_2 / 4.0;
+
   sum = 0;
   for (PoseVList::iterator i = particles.begin(); i != particles.end(); ++i) {
     sum += i->v;
@@ -183,9 +204,9 @@ void ParticleLocalization::spawnChildParticle(double sum) {
   }
 
   //Add some random "jitter" to the child
-  child.pose.p.x += frand(-0.1, 0.2);
-  child.pose.p.y += frand(-0.1, 0.2);
-  child.pose.yaw += frand(-0.01, 0.02);
+  child.pose.p.x += frand(-rp, 2*rp);
+  child.pose.p.y += frand(-rp, 2*rp);
+  child.pose.yaw += frand(-ry, 2*ry);
 
   particles.push_back(child);
 }
