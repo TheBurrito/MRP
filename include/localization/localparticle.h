@@ -19,7 +19,8 @@ public:
    */
   ParticleLocalization(SensorModel *sensor, Map *map, size_t numParticles,
       const double& discardThresh, const double& clearSpaceOdds,
-      const double& randomChance);
+      const double& randomChance, const double& posJitter,
+      const double& yawJitter);
 
   virtual void motionUpdate(const Pose& dPose);
   virtual void sensorUpdate();
@@ -66,6 +67,8 @@ private:
    * particle starts in clear space.
    */
   double thresh, clearOdds, randC;
+
+  double pj, yj;
 };
 
 #endif /* localparticle_h_ */

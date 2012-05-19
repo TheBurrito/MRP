@@ -12,13 +12,17 @@
 
 ParticleLocalization::ParticleLocalization(SensorModel *sensor, Map *map,
     size_t numParticles, const double& discardThresh,
-    const double& clearSpaceOdds, const double& chanceRandom) {
+    const double& clearSpaceOdds, const double& chanceRandom,
+    const double& posJitter, const double& yawJitter) {
   num = numParticles;
   this->sensor = sensor;
   this->map = map;
   thresh = discardThresh;
   clearOdds = clearSpaceOdds;
   randC = chanceRandom;
+
+  pj = posJitter;
+  yj = yawJitter;
 
   for (size_t i = 0; i < num; ++i) {
     spawnRandomParticle();
@@ -41,7 +45,7 @@ void ParticleLocalization::motionUpdate(const Pose& dPose) {
 void ParticleLocalization::sensorUpdate() {
   double p;
   for (PoseVList::iterator i = particles.begin(); i != particles.end(); ++i) {
-    if (map->get(i->pose.p.x, i->pose.p.y) > 4.0) {
+    if (map->get(i->pose.p.x, i->pose.p.y) > 2.0) {
       i->v = 0;
     } else {
       i->v *= sensor->localizationProb(*map, i->pose);
@@ -163,7 +167,8 @@ void ParticleLocalization::spawnRandomParticle() {
     p.pose.p.x = frand(l, w);
     p.pose.p.y = frand(b, h);
 
-  } while (map->get(p.pose.p.x, p.pose.p.y) > clearOdds);
+  } while (map->get(p.pose.p.x, p.pose.p.y) > clearOdds
+      || (p.pose.p.x == 0 && p.pose.p.y == 0));
 
   p.pose.yaw = frand(-PI, PI2);
   p.v = 1;
@@ -191,9 +196,6 @@ void ParticleLocalization::spawnChildParticle(double sum) {
   double r = frand(0.0, sum);
   PoseV child;
 
-  double rp = 0.2;
-  double ry = 0.3;//PI_2 / 4.0;
-
   sum = 0;
   for (PoseVList::iterator i = particles.begin(); i != particles.end(); ++i) {
     sum += i->v;
@@ -203,10 +205,15 @@ void ParticleLocalization::spawnChildParticle(double sum) {
     }
   }
 
+  if (child.pose.p.x == 0 && child.pose.p.y == 0) {
+    spawnRandomParticle();
+    return;
+  }
+
   //Add some random "jitter" to the child
-  child.pose.p.x += frand(-rp, 2*rp);
-  child.pose.p.y += frand(-rp, 2*rp);
-  child.pose.yaw += frand(-ry, 2*ry);
+  child.pose.p.x += frand(-pj, 2*pj);
+  child.pose.p.y += frand(-pj, 2*pj);
+  child.pose.yaw += frand(-yj, 2*yj);
 
   particles.push_back(child);
 }
