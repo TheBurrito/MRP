@@ -62,7 +62,7 @@ using namespace PlayerCc;
 
 #define MAX_VEL 0.4
 
-#define APF_MIN_D 0.75
+#define APF_MIN_D 0.8
 #define APF_FACT 4
 
 #define KGOAL 1.8
