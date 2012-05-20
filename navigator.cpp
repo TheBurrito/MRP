@@ -280,10 +280,10 @@ void * missionLoop(void *arg) {
       doPath = false;
       localNavPt.x = 0;
       localNavPt.y = 0;
-    } else if (!doPath && estPose.v > PATH_START) {
+    /*} else if (!doPath && estPose.v > PATH_START) {
       cout << "Enabling path mode." << endl;
       pPosition->SetSpeed(0, 0);
-      doPath = true;
+      doPath = true;*/
     } else if (!doPath) {
       //Drive forward with a slight tendency to turn. Sort of wall follows,
       //but has momentum to bounce past hallways. All robots seem to travel far
