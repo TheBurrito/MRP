@@ -23,7 +23,7 @@
 using namespace std;
 using namespace PlayerCc;
 
-#define USE_VIS 0
+#define USE_VIS 1
 
 /*
  * The number of particles to use for localization.
@@ -154,11 +154,11 @@ volatile bool sensorUpdate = false;
 
 PoseV estPose;
 
-double cDir[] = {0.7, 0.7, 0.0};
-double cOdom[] = {0.0, 0.9, 0.0};
-double cLoc[] = {0.0, 0.7, 0.7};
-double cPt[] = {0.8, 0.0, 0.0};
-double cPath[] = {0.9, 0.0, 0.9};
+double cDir[] = { 0.7, 0.7, 0.0 };
+double cOdom[] = { 0.0, 0.9, 0.0 };
+double cLoc[] = { 0.0, 0.7, 0.7 };
+double cPt[] = { 0.8, 0.0, 0.0 };
+double cPath[] = { 0.9, 0.0, 0.9 };
 
 double W, H, w, h, l, t;
 
@@ -179,7 +179,8 @@ inline void drawPoint(VisImage *im, size_t x, size_t y, size_t s, double *c) {
   }
 }
 
-inline void drawPos2(VisImage *im, const double& x, const double& y, size_t s, double *c) {
+inline void drawPos2(VisImage *im, const double& x, const double& y, size_t s,
+    double *c) {
   size_t xi = (x - l) / W;
   size_t yi = (t - y) / H;
   drawPoint(im, xi, yi, s, c);
@@ -256,9 +257,8 @@ void visRefresh() {
     }
   }
 
-  cout << estPose.v
-      << " (" << estPose.pose.p.x << ", " << estPose.pose.p.y << ") ("
-      << robot.p.x << ", " << robot.p.y << ")" << endl;
+  cout << estPose.v << " (" << estPose.pose.p.x << ", " << estPose.pose.p.y
+      << ") (" << robot.p.x << ", " << robot.p.y << ")" << endl;
 
   drawing = false;
 }
@@ -427,7 +427,7 @@ void * poseLoop(void *arg) {
     estPose = pLocal->getPose();
     gettingPose = false;
     if (estPose.v > PATH_START) {
-     mapToOdom = estPose.pose - odomToRobot;
+      mapToOdom = estPose.pose - odomToRobot;
     }
   }
 
@@ -474,11 +474,18 @@ void * navLoop(void *arg) {
       cout << "Generating path..." << endl;
       //Need to generate a path
       curPath = rMap->getPath(estPose.pose.p, waypoints[curWaypt]);
+      if (!curPath) {
+        cout << "No path returned. Returning to localization mode." << endl;
+        doPath = false;
+        continue;
+      }
       ++lastGen;
 
       curGoal = curPath->getCurrentPt();
 
-      cout << "Generated path with " << curPath->getPoints()->size() << " points." << endl;
+      cout << "Generated path with " << curPath->getPoints()->size()
+          << " points." << endl;
+
       for (Pos2List::iterator i = curPath->getPoints()->begin();
           i != curPath->getPoints()->end(); ++i) {
 

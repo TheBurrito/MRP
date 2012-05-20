@@ -19,8 +19,8 @@ struct SearchNode {
 
 class SNComp {
 public:
-  bool operator()(const SearchNode& a, const SearchNode& b) {
-    return a.f() < b.f();
+  bool operator()(const SearchNode *a, const SearchNode *b) {
+    return a->f() < b->f();
   }
 };
 
@@ -187,32 +187,39 @@ Path * Roadmap::getPath(const Pos2& start, const Pos2& end) {
   SearchNode *curNode = new SearchNode(), *parent;
 
   Pos2List visited;
-  std::priority_queue<SearchNode, std::vector<SearchNode>, SNComp> frontier;
+  std::priority_queue<SearchNode *, std::vector<SearchNode *>, SNComp> frontier;
 
   Pos2VList neighbors;
 
   std::deque<Pos2> tmpPath;
 
-  curNode->parent = 0;
+  /*curNode->parent = 0;
   curNode->g = 0;
   curNode->h = pointDist(sClosest, end);
   curNode->p = sClosest;
 
-  frontier.push(*curNode);
+  frontier.push(*curNode);*/
+
+  std::vector<SearchNode *> allNodes;
+
+  allNodes.push_back(curNode);
 
   while (!frontier.empty()) {
-    curNode = (SearchNode *) &(frontier.top());
+    curNode = frontier.top();
     frontier.pop();
+
+    std::cout << "Popped (" << curNode->p.x << ", " << curNode->p.y
+        << ") off the frontier." << std::endl;
 
     //Skip nodes that have already been visited.
     if (std::find(visited.begin(), visited.end(), curNode->p)
         != visited.end()) {
-      delete curNode;
       continue;
     }
 
     //Check if goal
     if (curNode->p == eClosest) {
+      std::cout << "Point is goal." << std::endl;
       break;
     }
 
@@ -222,19 +229,40 @@ Path * Roadmap::getPath(const Pos2& start, const Pos2& end) {
 
     //Create the search nodes for each neighbor and add to frontier
     for (Pos2VList::iterator i = neighbors.begin(); i != neighbors.end(); ++i) {
+      std::cout << "Generating new search node" << std::endl;
       curNode = new SearchNode();
       curNode->parent = parent;
       curNode->p = i->p;
       curNode->g = parent->g + i->v;
       curNode->h = pointDist(curNode->p, end);
-      frontier.push(*curNode);
+      frontier.push(curNode);
     }
+  }
+
+  std::cout << "Finished search." << std::endl;
+
+  if (!curNode) {
+    std::cout << "Exausted search space" << std::endl;
+    return 0;
   }
 
   //Trace backwards from curNode
   while (curNode) {
     tmpPath.push_back(curNode->p);
     curNode = curNode->parent;
+  }
+
+  //No longer need the heap searchnodes, delete them all.
+  for (size_t i = 0; i < allNodes.size(); ++i) {
+    delete allNodes[i];
+  }
+
+  std::cout << "Finished tracing path from goal." << std::endl;
+
+  //Debug display of path before possibly removing end points
+  for (std::deque<Pos2>::iterator i = tmpPath.begin(); i != tmpPath.end();
+      ++i) {
+    std::cout << "\t\t(" << i->x << ", " << i->y << ")" << std::endl;
   }
 
   //Now check if the second point is one of the sNeighbors and remove the first
