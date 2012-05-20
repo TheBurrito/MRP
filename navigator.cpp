@@ -245,7 +245,7 @@ void visRefresh() {
 
   drawPose(im, estPose.pose, 1, cLoc);
 
-  drawPose(im, robot, 1, cOdom);
+  drawPose(im, odomToRobot, 1, cOdom);
 
   if (curPath && doPath) {
     Pos2List *pts = curPath->getPoints();
