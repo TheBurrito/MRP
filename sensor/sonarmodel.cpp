@@ -53,7 +53,9 @@ SonarLocalProfile::SonarLocalProfile(const double& oddObs, const double& oddClr,
 
 double SonarLocalProfile::getOdds(const PosPol& pt, const double& d) {
 
-  if (pt.pol.d < d - _res_2) {
+  if (d == 5.0 && pt.pol.d < 5.0) {
+    return _clr;
+  } else if (pt.pol.d < d - _res_2) {
     return ((pt.pol.d * _obs) / (d - _res_2));
   } else if (pt.pol.d < d + _res_2) {
     return _obs;
