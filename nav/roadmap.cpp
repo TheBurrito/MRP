@@ -157,33 +157,6 @@ Path * Roadmap::getPath(const Pos2& start, const Pos2& end) {
   std::cout << "\tClosest to end on Roadmap: (" << eClosest.x << ", "
       << eClosest.y << ")" << std::endl;
 
-  /*sNeighbors = edges[sClosest];
-  eNeighbors = edges[eClosest];
-
-  //Find the closest on-edge point to the starting point
-  for (Pos2VList::iterator i = sNeighbors.begin(); i != sNeighbors.end(); ++i) {
-    curPt.p = closestOnLine(sClosest, i->p, start, true);
-    curPt.v = pointDist(curPt.p, start);
-    if (curPt.v < startPt.v || startPt.v < 0) {
-      startPt = curPt;
-    }
-  }
-
-  std::cout << "\tClosest on edge to start: (" << startPt.p.x << ", "
-      << startPt.p.y << ")" << std::endl;
-
-  //Find closest on-edge point to the end point
-  for (Pos2VList::iterator i = eNeighbors.begin(); i != eNeighbors.end(); ++i) {
-    curPt.p = closestOnLine(eClosest, i->p, end, true);
-    curPt.v = pointDist(curPt.p, end);
-    if (curPt.v < endPt.v || endPt.v < 0) {
-      endPt = curPt;
-    }
-  }
-
-  std::cout << "\tClosest on edge to end: (" << endPt.p.x << ", " << endPt.p.y
-      << ")" << std::endl;*/
-
   //We can now path find from sClosest to eClosest and just add the extra points
 
   SearchNode *curNode = new SearchNode(), *parent;
@@ -274,45 +247,15 @@ Path * Roadmap::getPath(const Pos2& start, const Pos2& end) {
 
   std::cout << "Finished tracing path from goal." << std::endl;
 
-  /*//Debug display of path before possibly removing end points
-  for (std::deque<Pos2>::iterator i = tmpPath.begin(); i != tmpPath.end();
-      ++i) {
-    std::cout << "\t\t(" << i->x << ", " << i->y << ")" << std::endl;
-  }
-
-  //Now check if the second point is one of the sNeighbors and remove the first
-  //point
-  curPt.p = *(tmpPath.begin() + 1);
-  for (Pos2VList::iterator i = sNeighbors.begin(); i != sNeighbors.end(); ++i) {
-    if (curPt.p == i->p) {
-      tmpPath.pop_front();
-      break;
-    }
-  }
-
-  //Check 2nd to last point and remove last point if it is in eNeighbors
-  if (tmpPath.size() > 1) {
-    curPt.p = *(tmpPath.end() - 2);
-    for (Pos2VList::iterator i = eNeighbors.begin(); i != eNeighbors.end();
-        ++i) {
-      if (curPt.p == i->p) {
-        tmpPath.pop_back();
-        break;
-      }
-    }
-  }
-
-  //Add generated points to path
-  tmpPath.push_front(startPt.p);
-  tmpPath.push_back(endPt.p);*/
-
-  tmpPath.push_back(end);
+  //tmpPath.push_back(end);
 
   //Now dump the path into the Path instance.
   for (std::deque<Pos2>::iterator i = tmpPath.begin(); i != tmpPath.end();
       ++i) {
     path->addPoint(*i);
   }
+
+  path->addPoint(end);
 
   return path;
 }

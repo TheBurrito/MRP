@@ -20,6 +20,8 @@ void display() {
     return;
   }
 
+  usleep(0);
+
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   gluOrtho2D(0, im->width, 0, im->height);

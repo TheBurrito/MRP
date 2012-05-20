@@ -64,11 +64,11 @@ using namespace PlayerCc;
 
 #define MAX_VEL 0.4
 
-#define APF_MIN_D 0.8
+#define APF_MIN_D 0.65
 #define APF_FACT 4
 
 #define KGOAL 1.8
-#define KOBS 0.45
+#define KOBS 0.5
 
 /**
  * Flag for signalling that the program is ready to run
@@ -726,7 +726,7 @@ void initLocal() {
 
 void initVis() {
   cout << "Initializing visualization window..." << flush;
-  im = initVis(1000, 450, true, &drawing);
+  im = initVis(1000, 450, false, &drawing);
   cout << "Done" << endl;
 }
 
