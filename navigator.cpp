@@ -32,9 +32,9 @@ using namespace PlayerCc;
 
 #define PARTICLE_THRESH 0.01
 
-#define SONAR_RES 0.2
+#define SONAR_RES 0.3
 
-#define RAND_SPAWN 0.5
+#define RAND_SPAWN 0.2
 #define POS_JITTER 0.2
 #define YAW_JITTER 0.2
 
@@ -240,7 +240,7 @@ void visRefresh() {
   PoseVList *pts = pLocal->getParticles();
 
   for (PoseVList::iterator i = pts->begin(); i != pts->end(); ++i) {
-    drawPose(im, i->pose, 1, cPt);
+    drawPose(im, i->pose, 0, cPt);
   }
 
   drawPose(im, estPose.pose, 1, cLoc);
@@ -280,10 +280,10 @@ void * missionLoop(void *arg) {
       doPath = false;
       localNavPt.x = 0;
       localNavPt.y = 0;
-    /*} else if (!doPath && estPose.v > PATH_START) {
+    } else if (!doPath && estPose.v > PATH_START) {
       cout << "Enabling path mode." << endl;
       pPosition->SetSpeed(0, 0);
-      doPath = true;*/
+      doPath = true;
     } else if (!doPath) {
       //Drive forward with a slight tendency to turn. Sort of wall follows,
       //but has momentum to bounce past hallways. All robots seem to travel far

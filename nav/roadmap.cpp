@@ -143,8 +143,17 @@ Path * Roadmap::getPath(const Pos2& start, const Pos2& end) {
   startPt.v = -1;
   endPt.v = -1;
 
+  std::cout << "Generating path from (" << start.x << ", " << start.y
+      << ") to (" << end.x << ", " << end.y << ")" << std::endl;
+
   sClosest = *(closestPoint(points, start));
   eClosest = *(closestPoint(points, end));
+
+  std::cout << "\tClosest to start on Roadmap: (" << sClosest.x << ", "
+      << sClosest.y << ")" << std::endl;
+
+  std::cout << "\tClosest to end on Roadmap: (" << eClosest.x << ", "
+      << eClosest.y << ")" << std::endl;
 
   sNeighbors = edges[sClosest];
   eNeighbors = edges[eClosest];
@@ -158,6 +167,9 @@ Path * Roadmap::getPath(const Pos2& start, const Pos2& end) {
     }
   }
 
+  std::cout << "\tClosest on edge to start: (" << startPt.p.x << ", "
+      << startPt.p.y << ")" << std::endl;
+
   //Find closest on-edge point to the end point
   for (Pos2VList::iterator i = eNeighbors.begin(); i != eNeighbors.end(); ++i) {
     curPt.p = closestOnLine(eClosest, i->p, end, true);
@@ -166,6 +178,9 @@ Path * Roadmap::getPath(const Pos2& start, const Pos2& end) {
       endPt = curPt;
     }
   }
+
+  std::cout << "\tClosest on edge to end: (" << endPt.p.x << ", " << endPt.p.y
+      << ")" << std::endl;
 
   //We can now path find from sClosest to eClosest and just add the extra points
 
@@ -186,7 +201,7 @@ Path * Roadmap::getPath(const Pos2& start, const Pos2& end) {
   frontier.push(*curNode);
 
   while (!frontier.empty()) {
-    curNode = (SearchNode *)&(frontier.top());
+    curNode = (SearchNode *) &(frontier.top());
     frontier.pop();
 
     //Skip nodes that have already been visited.
