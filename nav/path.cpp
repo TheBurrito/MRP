@@ -34,6 +34,10 @@ int Path::readFromFile(std::string filename) {
 	return n;
 }
 
+Pos2List * Path::getPoints() {
+  return _points;
+}
+
 int Path::saveToFile(std::string filename) {
   std::ofstream out(filename.c_str());
 

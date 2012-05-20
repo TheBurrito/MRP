@@ -46,6 +46,8 @@ public:
 	
 	void clear();
 	
+	Pos2List * getPoints();
+
 private:
 	
 	Pos2List *_points;

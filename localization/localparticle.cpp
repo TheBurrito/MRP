@@ -48,7 +48,7 @@ void ParticleLocalization::sensorUpdate() {
     if (map->get(i->pose.p.x, i->pose.p.y) > 2.0) {
       i->v = 0;
     } else {
-      i->v *= sensor->localizationProb(*map, i->pose);
+      i->v = sensor->localizationProb(*map, i->pose);
     }
     //std::cout << p << " -> " << i->v << std::endl;
   }
@@ -89,6 +89,57 @@ void ParticleLocalization::sensorUpdate() {
 }
 
 PoseV ParticleLocalization::getPose() {
+  PoseV sum, avg;
+  double d, n, v, w;
+
+  sum.pose.p.x = 0;
+  sum.pose.p.y = 0;
+  sum.pose.yaw = 0;
+  sum.v = 0;
+
+  avg.pose.p.x = 0;
+  avg.pose.p.y = 0;
+  avg.pose.yaw = 0;
+  avg.v = 0;
+
+  n = particles.size();
+
+  for (PoseVList::iterator i = particles.begin(); i != particles.end(); ++i) {
+    sum.pose.p.x += i->pose.p.x * i->v;
+    sum.pose.p.y += i->pose.p.y * i->v;
+    sum.pose.yaw += i->pose.yaw * i->v;
+    w += i->v;
+  }
+
+  //v = n * w;
+  avg.pose.p.x = sum.pose.p.x / w;
+  avg.pose.p.y = sum.pose.p.y / w;
+  avg.pose.yaw = sum.pose.yaw / w;
+  avg.v = w / n;
+
+  /*for (PoseVList::iterator i = particles.begin(); i != particles.end(); ++i) {
+    d = hypot(sum.pose.p.x - i->pose.p.x, sum.pose.p.y - i->pose.p.y);
+    avg.v += d;
+
+    if (d < v) {
+      avg.pose.p.x += i->pose.p.x;
+      avg.pose.p.y += i->pose.p.y;
+      avg.pose.yaw += i->pose.yaw;
+      ++n;
+    }
+  }
+
+  if (n > 0) {
+    avg.pose.p.x /= n;
+    avg.pose.p.y /= n;
+    avg.pose.yaw /= n;
+    avg.v /= particles.size();
+  }*/
+
+  return avg;
+}
+
+/*PoseV ParticleLocalization::getPose() {
   double sum = getOddsSum();
   PoseV p;
   p.pose.p.x = 0;
@@ -108,7 +159,8 @@ PoseV ParticleLocalization::getPose() {
   //for x, weight in dataWeightPairs:  # Alternately "for x, weight in zip(data, weights):"
   for (PoseVList::iterator i = particles.begin(); i != particles.end(); ++i) {
     //temp = weight + sumweight
-    weight = OtoP(i->v);
+    double o = i->v;
+    weight = OtoP(o);
     temp = weight + sumweight;
 
     //delta = x - mean
@@ -154,7 +206,7 @@ PoseV ParticleLocalization::getPose() {
   p.v = vx + vy + vyaw;
 
   return p;
-}
+}*/
 
 void ParticleLocalization::spawnRandomParticle() {
   double w = map->envWidth();
@@ -162,13 +214,16 @@ void ParticleLocalization::spawnRandomParticle() {
   double l = map->envLeft();
   double b = map->envBottom();
 
+  double d;
   PoseV p;
   do {
     p.pose.p.x = frand(l, w);
     p.pose.p.y = frand(b, h);
 
+    d = hypot(p.pose.p.x, p.pose.p.y);
+
   } while (map->get(p.pose.p.x, p.pose.p.y) > clearOdds
-      || (p.pose.p.x == 0 && p.pose.p.y == 0));
+      || d < 1.0);
 
   p.pose.yaw = frand(-PI, PI2);
   p.v = 1;
@@ -205,7 +260,9 @@ void ParticleLocalization::spawnChildParticle(double sum) {
     }
   }
 
-  if (child.pose.p.x == 0 && child.pose.p.y == 0) {
+  double d = hypot(child.pose.p.x, child.pose.p.y);
+
+  if (d < 1.0) {
     spawnRandomParticle();
     return;
   }
