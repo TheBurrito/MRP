@@ -23,6 +23,8 @@
 using namespace std;
 using namespace PlayerCc;
 
+#define USE_VIS 0
+
 /*
  * The number of particles to use for localization.
  *
@@ -396,7 +398,9 @@ void * localLoop(void *arg) {
 
     //estPose = pLocal->getPose();
 
-    visRefresh();
+    if (USE_VIS) {
+      visRefresh();
+    }
 
     //localError = est.v;
   }
@@ -746,7 +750,10 @@ int main(int argc, char** argv) {
   loadMap(mapfile);
   loadRoadmap("maps/" + roadmapfile);
   initLocal();
-  initVis();
+
+  if (USE_VIS) {
+    initVis();
+  }
 
   spawnThreads();
 
