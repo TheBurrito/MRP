@@ -9,6 +9,7 @@ static pthread_t thrGlut;
 static volatile int good;
 static volatile bool killGlut = false;
 bool *waitDraw;
+bool glutIdle;
 
 void display() {
   if (killGlut) {
@@ -47,6 +48,21 @@ void display() {
 }
 
 void * glutThread(void *arg) {
+
+  int argc = 0;
+  glutInit(&argc, 0);
+  glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
+
+  glutInitWindowPosition(0, 00);
+  glutInitWindowSize(im->width, im->height);
+  glWnd = glutCreateWindow("MRP Vis");
+
+  glutDisplayFunc(display);
+
+  if (glutIdle) {
+    glutIdleFunc(display);
+  }
+
   try {
     glutMainLoop();
   } catch (const char *msg) {
@@ -59,20 +75,6 @@ void * glutThread(void *arg) {
 VisImage * initVis(size_t width, size_t height, bool idle, bool *wait) {
   //std::cout << std::endl << "init" << std::endl;
 
-  int argc = 0;
-  glutInit(&argc, 0);
-  glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
-
-  glutInitWindowPosition(0, 00);
-  glutInitWindowSize(width, height);
-  glWnd = glutCreateWindow("MRP Vis");
-
-  glutDisplayFunc(display);
-
-  if (idle) {
-    glutIdleFunc(display);
-  }
-
   im = VisCreateImage(width, height, 3);
 
   waitDraw = wait;
@@ -80,6 +82,8 @@ VisImage * initVis(size_t width, size_t height, bool idle, bool *wait) {
   if (!waitDraw) {
     waitDraw = new bool(false);
   }
+
+  glutIdle = idle;
 
   pthread_create(&thrGlut, NULL, glutThread, NULL);
 
