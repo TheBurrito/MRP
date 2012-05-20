@@ -16,7 +16,7 @@ SET (CMAKE_LIBRARY_OUTPUT_DIRECTORY lib)
 SET (CMAKE_ARCHIVE_OUTPUT_DIRECTORY lib)
 #SET (CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
 
-SET (STD_LIBS pthread rt)
+SET (STD_LIBS pthread)
 SET (DRAWING_LIBS ${GLUT_LIBRARY} ${OPENGL_LIBRARY} X11 Xext)
 
 #Setup the doc target for make to run doxygen
@@ -113,6 +113,7 @@ add_executable(
   
     mapconvert.cpp
 )
+
 target_link_libraries(
   
   mapcreate 

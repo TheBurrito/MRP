@@ -20,9 +20,11 @@ struct SearchNode {
 class SNComp {
 public:
   bool operator()(const SearchNode *a, const SearchNode *b) {
-    return a->f() < b->f();
+    return a->f() > b->f();
   }
 };
+
+typedef std::priority_queue<SearchNode *, std::vector<SearchNode *>, SNComp> FrontierList;
 
 Roadmap::Roadmap() {
 
@@ -155,7 +157,7 @@ Path * Roadmap::getPath(const Pos2& start, const Pos2& end) {
   std::cout << "\tClosest to end on Roadmap: (" << eClosest.x << ", "
       << eClosest.y << ")" << std::endl;
 
-  sNeighbors = edges[sClosest];
+  /*sNeighbors = edges[sClosest];
   eNeighbors = edges[eClosest];
 
   //Find the closest on-edge point to the starting point
@@ -180,25 +182,25 @@ Path * Roadmap::getPath(const Pos2& start, const Pos2& end) {
   }
 
   std::cout << "\tClosest on edge to end: (" << endPt.p.x << ", " << endPt.p.y
-      << ")" << std::endl;
+      << ")" << std::endl;*/
 
   //We can now path find from sClosest to eClosest and just add the extra points
 
   SearchNode *curNode = new SearchNode(), *parent;
 
   Pos2List visited;
-  std::priority_queue<SearchNode *, std::vector<SearchNode *>, SNComp> frontier;
+  FrontierList frontier;
 
   Pos2VList neighbors;
 
   std::deque<Pos2> tmpPath;
 
-  /*curNode->parent = 0;
+  curNode->parent = 0;
   curNode->g = 0;
   curNode->h = pointDist(sClosest, end);
   curNode->p = sClosest;
 
-  frontier.push(*curNode);*/
+  frontier.push(curNode);
 
   std::vector<SearchNode *> allNodes;
 
@@ -208,7 +210,7 @@ Path * Roadmap::getPath(const Pos2& start, const Pos2& end) {
     curNode = frontier.top();
     frontier.pop();
 
-    std::cout << "Popped (" << curNode->p.x << ", " << curNode->p.y
+    std::cout << "\n\tPopped (" << curNode->p.x << ", " << curNode->p.y
         << ") off the frontier." << std::endl;
 
     //Skip nodes that have already been visited.
@@ -219,7 +221,7 @@ Path * Roadmap::getPath(const Pos2& start, const Pos2& end) {
 
     //Check if goal
     if (curNode->p == eClosest) {
-      std::cout << "Point is goal." << std::endl;
+      std::cout << "\tPoint is goal." << std::endl;
       break;
     }
 
@@ -229,12 +231,25 @@ Path * Roadmap::getPath(const Pos2& start, const Pos2& end) {
 
     //Create the search nodes for each neighbor and add to frontier
     for (Pos2VList::iterator i = neighbors.begin(); i != neighbors.end(); ++i) {
-      std::cout << "Generating new search node" << std::endl;
+      std::cout << "\tGenerating new search node" << std::endl;
       curNode = new SearchNode();
       curNode->parent = parent;
+
+      std::cout << "\t\tPoint (" << i->p.x << ", " << i->p.y
+          << ")" << std::endl;
+
+      std::cout << "\t\tSetting parent to (" << parent->p.x << ", "
+          << parent->p.y << ")" << std::endl;
+
       curNode->p = i->p;
       curNode->g = parent->g + i->v;
+
+      std::cout << "\t\tG(n) = " << curNode->g << std::endl;
+
       curNode->h = pointDist(curNode->p, end);
+
+      std::cout << "\t\tH(n) = " << curNode->h << std::endl;
+
       frontier.push(curNode);
     }
   }
@@ -259,7 +274,7 @@ Path * Roadmap::getPath(const Pos2& start, const Pos2& end) {
 
   std::cout << "Finished tracing path from goal." << std::endl;
 
-  //Debug display of path before possibly removing end points
+  /*//Debug display of path before possibly removing end points
   for (std::deque<Pos2>::iterator i = tmpPath.begin(); i != tmpPath.end();
       ++i) {
     std::cout << "\t\t(" << i->x << ", " << i->y << ")" << std::endl;
@@ -289,7 +304,9 @@ Path * Roadmap::getPath(const Pos2& start, const Pos2& end) {
 
   //Add generated points to path
   tmpPath.push_front(startPt.p);
-  tmpPath.push_back(endPt.p);
+  tmpPath.push_back(endPt.p);*/
+
+  tmpPath.push_back(end);
 
   //Now dump the path into the Path instance.
   for (std::deque<Pos2>::iterator i = tmpPath.begin(); i != tmpPath.end();
