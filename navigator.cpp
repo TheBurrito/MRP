@@ -240,7 +240,7 @@ void visRefresh() {
   PoseVList *pts = pLocal->getParticles();
 
   for (PoseVList::iterator i = pts->begin(); i != pts->end(); ++i) {
-    drawPose(im, i->pose, 0, cPt);
+    drawPose(im, i->pose, 1, cPt);
   }
 
   drawPose(im, estPose.pose, 1, cLoc);
@@ -723,6 +723,8 @@ int main(int argc, char** argv) {
 
   std::string ptfile, mapfile, host, roadmapfile = "gccis3.roadmap";
   int port;
+
+  srand(time(0));
 
   //Proccess the args and ensure we have everything we need
   if (processArgs(argc, argv, host, port, ptfile, mapfile)) {
