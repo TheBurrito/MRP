@@ -32,7 +32,7 @@ using namespace PlayerCc;
 
 #define PARTICLE_THRESH 0.01
 
-#define SONAR_RES 0.15
+#define SONAR_RES 0.2
 
 #define RAND_SPAWN 0.5
 #define POS_JITTER 0.2
@@ -659,6 +659,8 @@ void initProxies(std::string host, int port) {
   pRobot = new PlayerClient(host, port);
   pPosition = new Position2dProxy(pRobot, 0);
   pSonar = new SonarProxy(pRobot, 0);
+
+  pPosition->SetMotorEnable(true);
 
   cout << "Done" << endl;
 }
