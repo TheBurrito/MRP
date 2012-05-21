@@ -293,14 +293,14 @@ void * missionLoop(void *arg) {
       localNavPt.x = 0.5;
       localNavPt.y = -0.2;
     } else if (doPath) {
-      if (curPath->atEnd()) {
+      if (curPath && curPath->atEnd()) {
         ++curWaypt;
       }
     }
-
-    cout << "Reached last point, queue up \"We Are the Champions\"!"
-        << endl;
   }
+
+  cout << "Reached last point, queue up \"We Are the Champions\"!"
+      << endl;
 
   return 0;
 }
