@@ -14,8 +14,6 @@
 
 #include <pthread.h>
 #include <unistd.h>
-
-#include <iostream>
 #include <fstream>
 
 #include <cmath>
@@ -257,7 +255,7 @@ void visRefresh() {
     }
   }
 
-  cout << estPose.v << " " << flush; //(" << estPose.pose.p.x << ", " << estPose.pose.p.y
+  //cout << estPose.v << " " << flush; //(" << estPose.pose.p.x << ", " << estPose.pose.p.y
   //    << ") (" << robot.p.x << ", " << robot.p.y << ")" << endl;
 
   drawing = false;
@@ -299,8 +297,7 @@ void * missionLoop(void *arg) {
     }
   }
 
-  cout << "Reached last point, queue up \"We Are the Champions\"!"
-      << endl;
+  cout << "Reached last point, queue up \"We Are the Champions\"!" << endl;
 
   return 0;
 }
@@ -351,7 +348,10 @@ void * driveLoop(void *arg) {
       localPose = odomToRobot;
     } else {
       localPose = estPose.pose;
-      localGoal = curGoal;
+      curPath->getCurrentPt(localGoal);
+
+      //cout << "\tHeading to point #" << curPath->curIndex() << endl;
+      //cout << "\t\t(" << localGoal.x << ", " << localGoal.y << ")" << endl;
     }
 
     obslist = sSonar->getLocalScan(dtor(90), dtor(-90));
@@ -487,6 +487,13 @@ void * navLoop(void *arg) {
         continue;
       }
       ++lastGen;
+
+      for (Pos2List::iterator i = curPath->getPoints()->begin();
+          i != curPath->getPoints()->end(); ++i) {
+        cout << "(" << i->x << ", " << i->y << ") ";
+      }
+
+      cout << endl;
 
       curPath->getCurrentPt(curGoal);
     }
@@ -793,8 +800,6 @@ int main(int argc, char** argv) {
    * waypoint has been hit.
    */
   pthread_join(thrMission, 0);
-
-
 
   return 0;
 }

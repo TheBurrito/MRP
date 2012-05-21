@@ -224,6 +224,7 @@ Path * Roadmap::getPath(const Pos2& start, const Pos2& end) {
       //std::cout << "\t\tH(n) = " << curNode->h << std::endl;
 
       frontier.push(curNode);
+      allNodes.push_back(curNode);
     }
   }
 
@@ -236,7 +237,10 @@ Path * Roadmap::getPath(const Pos2& start, const Pos2& end) {
 
   //Trace backwards from curNode
   while (curNode) {
-    tmpPath.push_back(curNode->p);
+    std::cout << "Adding backtracked point (" << curNode->p.x << ", "
+        << curNode->p.y << ") to list." << std::endl;
+
+    tmpPath.push_front(curNode->p);
     curNode = curNode->parent;
   }
 
@@ -253,6 +257,8 @@ Path * Roadmap::getPath(const Pos2& start, const Pos2& end) {
   for (std::deque<Pos2>::iterator i = tmpPath.begin(); i != tmpPath.end();
       ++i) {
     path->addPoint(*i);
+
+    std::cout << "Adding (" << i->x << ", " << i->y << ") to path." << std::endl;
   }
 
   path->addPoint(end);
