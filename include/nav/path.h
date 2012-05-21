@@ -27,11 +27,16 @@ public:
 	 */
 	bool atEnd();
 	
+	size_t numPts();
+
+	size_t curIndex();
+
 	/**
 	 *
-	 * @return The current way point along the path.
+	 * @return True if already at the end of the path, false otherwise. If true is
+	 * returned, the point reference will remain unchanged.
 	 */
-	Pos2 getCurrentPt();
+	bool getCurrentPt(Pos2& pt);
 	
 	/**
 	 * Updates the progress of the path based on the current pose of the robot.

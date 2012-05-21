@@ -59,8 +59,21 @@ bool Path::atEnd() {
 	return _curPt == _points->size();
 }
 
-Pos2 Path::getCurrentPt() {
-	return (*_points)[_curPt];
+size_t Path::numPts() {
+  return _points->size();
+}
+
+size_t Path::curIndex() {
+  return _curPt;
+}
+
+bool Path::getCurrentPt(Pos2& pt) {
+	if (_curPt == _points->size()) {
+	  return true;
+	}
+
+	pt = (*_points)[_curPt];
+	return false;
 }
 
 bool Path::update(const Pose& robot, const double& epsilon) {

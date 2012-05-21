@@ -292,7 +292,14 @@ void * missionLoop(void *arg) {
       //enough to localize though.
       localNavPt.x = 0.5;
       localNavPt.y = -0.2;
+    } else if (doPath) {
+      if (curPath->atEnd()) {
+        ++curWaypt;
+      }
     }
+
+    cout << "Reached last point, queue up \"We Are the Champions\"!"
+        << endl;
   }
 
   return 0;
@@ -481,18 +488,27 @@ void * navLoop(void *arg) {
       }
       ++lastGen;
 
-      curGoal = curPath->getCurrentPt();
+      curPath->getCurrentPt(curGoal);
+    }
 
-      /*cout << "Generated path with " << curPath->getPoints()->size()
-          << " points." << endl;
+    double thresh;
 
-      for (Pos2List::iterator i = curPath->getPoints()->begin();
-          i != curPath->getPoints()->end(); ++i) {
+    char navMsg[] = "\nReached intermediate navigation point.";
+    char wayptMsg[] = "\nReached assigned goal waypoint.";
+    char *msg;
 
-        cout << "(" << i->x << ", " << i->y << ") ";
-      }
+    if (curPath->curIndex() == curPath->numPts() - 1) {
+      //Final point in a path is an actual assigned goal point
+      thresh = WAYPT_THRESH;
+      msg = wayptMsg;
+    } else {
+      thresh = NAV_THRESH;
+      msg = navMsg;
+    }
 
-      cout << endl;*/
+    if (curPath->update(estPose.pose, thresh)) {
+      cout << msg << endl;
+      curPath->getCurrentPt(curGoal);
     }
   }
 
@@ -777,7 +793,8 @@ int main(int argc, char** argv) {
    * waypoint has been hit.
    */
   pthread_join(thrMission, 0);
-  cout << endl;
+
+
 
   return 0;
 }

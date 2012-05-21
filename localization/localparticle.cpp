@@ -34,11 +34,13 @@ void ParticleLocalization::motionUpdate(const Pose& dPose) {
     i->pose = i->pose + dPose;
 
     /*if (map->get(i->pose.p.x, i->pose.p.y) > 4.0) {
-      i->v = 0;
-    }*/
+     i->v = 0;
+     }*/
 
-    while (i->pose.yaw < -PI_2) i->pose.yaw += PI2;
-    while (i->pose.yaw > PI_2) i->pose.yaw -= PI2;
+    while (i->pose.yaw < -PI_2)
+      i->pose.yaw += PI2;
+    while (i->pose.yaw > PI_2)
+      i->pose.yaw -= PI2;
   }
 }
 
@@ -67,25 +69,15 @@ void ParticleLocalization::sensorUpdate() {
   size_t n = num - particles.size();
   size_t c = 0, r = 0;
 
-  /*if (particles.size() < num * 0.05) {
-    //Spawn all new particles randomly due to lack of population
-    std::cout << "Spawning " << n << " random particles." << std::endl;
-    for (size_t i = 0; i < n; ++i) {
+  for (size_t i = 0; i < n; ++i) {
+    if (frand(0.0, 1.0) < randC) {
       spawnRandomParticle();
+      ++r;
+    } else {
+      spawnChildParticle(sum);
+      ++c;
     }
-  } else {*/
-    for (size_t i = 0; i < n; ++i) {
-      if (frand(0.0, 1.0) < randC) {
-        spawnRandomParticle();
-        ++r;
-      } else {
-        spawnChildParticle(sum);
-        ++c;
-      }
-    }
-
-    //std::cout << "Spawned " << c << " children and " << r << " randomly." << std::endl;
-  //}
+  }
 }
 
 PoseV ParticleLocalization::getPose() {
@@ -127,75 +119,6 @@ PoseV ParticleLocalization::getPose() {
   return avg;
 }
 
-/*PoseV ParticleLocalization::getPose() {
-  double sum = getOddsSum();
-  PoseV p;
-  p.pose.p.x = 0;
-  p.pose.p.y = 0;
-  p.pose.yaw = 0;
-
-  //def weighted_incremental_variance(dataWeightPairs):
-  //sumweight = 0
-  double sumweight = 0;
-  //mean = 0
-  double meanx = 0, meany = 0, meanyaw = 0;
-  //M2 = 0
-  double m2x = 0, m2y = 0, m2yaw;
-
-  double temp, deltax, deltay, deltayaw, rx, ry, ryaw, weight, f;
-
-  //for x, weight in dataWeightPairs:  # Alternately "for x, weight in zip(data, weights):"
-  for (PoseVList::iterator i = particles.begin(); i != particles.end(); ++i) {
-    //temp = weight + sumweight
-    double o = i->v;
-    weight = OtoP(o);
-    temp = weight + sumweight;
-
-    //delta = x - mean
-    deltax = i->pose.p.x - meanx;
-    deltay = i->pose.p.y - meany;
-    deltayaw = i->pose.yaw - meanyaw;
-
-    //R = delta * weight / temp
-    f = weight / temp;
-    rx = deltax * f;
-    ry = deltay * f;
-    ryaw = deltayaw * f;
-
-    //mean = mean + R
-    meanx += rx;
-    meany += ry;
-    meanyaw += ryaw;
-
-    //M2 = M2 + sumweight * delta * R  # Alternatively, "M2 = M2 + weight * delta * (x-mean)"
-    m2x += sumweight * deltax * rx;
-    m2y += sumweight * deltay * ry;
-    m2yaw += sumweight * deltayaw * ryaw;
-
-    //sumweight = temp
-    sumweight = temp;
-  }
-
-  //variance_n = M2/sumweight
-  double vnx = m2x / sumweight;
-  double vny = m2y / sumweight;
-  double vnyaw = m2yaw / sumweight;
-
-  //variance = variance_n * len(dataWeightPairs)/(len(dataWeightPairs) - 1)
-  f = particles.size() / (particles.size() - 1.0);
-  double vx = vnx * f;
-  double vy = vny * f;
-  double vyaw = vnyaw * f;
-
-  p.pose.p.x = meanx;
-  p.pose.p.y = meany;
-  p.pose.yaw = meanyaw;
-
-  p.v = vx + vy + vyaw;
-
-  return p;
-}*/
-
 void ParticleLocalization::spawnRandomParticle() {
   double w = map->envWidth();
   double h = map->envHeight();
@@ -210,8 +133,7 @@ void ParticleLocalization::spawnRandomParticle() {
 
     d = hypot(p.pose.p.x, p.pose.p.y);
 
-  } while (map->get(p.pose.p.x, p.pose.p.y) > clearOdds
-      || d < 1.0);
+  } while (map->get(p.pose.p.x, p.pose.p.y) > clearOdds || d < 1.0);
 
   p.pose.yaw = frand(-PI, PI2);
   p.v = 1;
@@ -256,9 +178,9 @@ void ParticleLocalization::spawnChildParticle(double sum) {
   }
 
   //Add some random "jitter" to the child
-  child.pose.p.x += frand(-pj, 2*pj);
-  child.pose.p.y += frand(-pj, 2*pj);
-  child.pose.yaw += frand(-yj, 2*yj);
+  child.pose.p.x += frand(-pj, 2 * pj);
+  child.pose.p.y += frand(-pj, 2 * pj);
+  child.pose.yaw += frand(-yj, 2 * yj);
 
   particles.push_back(child);
 }
