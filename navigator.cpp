@@ -290,10 +290,6 @@ void * missionLoop(void *arg) {
       //enough to localize though.
       localNavPt.x = 0.5;
       localNavPt.y = -0.2;
-    } else if (doPath) {
-      if (curPath && curPath->atEnd()) {
-        ++curWaypt;
-      }
     }
   }
 
@@ -366,6 +362,12 @@ void * driveLoop(void *arg) {
 
     t = atan2(drv.y, drv.x) / 4;
 
+    if (doPath) {
+      //Prevent the robot from toilet-bowling around a close waypoint to it's side
+      double c = cos(t);
+      v *= c * c;
+    }
+
     //cout << "Vel: " << v << " Turn: " << t << endl;
 
     drvCmd.x = v;
@@ -422,6 +424,8 @@ void * localLoop(void *arg) {
  */
 void * poseLoop(void *arg) {
 
+  PoseV lastPose;
+
   waitReady();
 
   while (true) {
@@ -431,7 +435,16 @@ void * poseLoop(void *arg) {
     }
 
     gettingPose = true;
+    lastPose = estPose;
     estPose = pLocal->getPose();
+
+    //Check if the localization point moved from cluster to cluster within a
+    //single iteration and didn't otherwise knock the robot out of pathing.
+    if (doPath && pointDist(lastPose.pose.p, estPose.pose.p) > 3.0) {
+      cout << "Pose estimate delta too large, resetting path mode." << endl;
+      doPath = false;
+    }
+
     gettingPose = false;
     if (estPose.v > PATH_START) {
       mapToOdom = estPose.pose - odomToRobot;
@@ -488,12 +501,12 @@ void * navLoop(void *arg) {
       }
       ++lastGen;
 
-      for (Pos2List::iterator i = curPath->getPoints()->begin();
+      /*for (Pos2List::iterator i = curPath->getPoints()->begin();
           i != curPath->getPoints()->end(); ++i) {
         cout << "(" << i->x << ", " << i->y << ") ";
       }
 
-      cout << endl;
+      cout << endl;*/
 
       curPath->getCurrentPt(curGoal);
     }
@@ -516,6 +529,10 @@ void * navLoop(void *arg) {
     if (curPath->update(estPose.pose, thresh)) {
       cout << msg << endl;
       curPath->getCurrentPt(curGoal);
+
+      if (curPath->atEnd()) {
+        ++curWaypt;
+      }
     }
   }
 

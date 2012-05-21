@@ -237,8 +237,8 @@ Path * Roadmap::getPath(const Pos2& start, const Pos2& end) {
 
   //Trace backwards from curNode
   while (curNode) {
-    std::cout << "Adding backtracked point (" << curNode->p.x << ", "
-        << curNode->p.y << ") to list." << std::endl;
+    //std::cout << "Adding backtracked point (" << curNode->p.x << ", "
+    //    << curNode->p.y << ") to list." << std::endl;
 
     tmpPath.push_front(curNode->p);
     curNode = curNode->parent;
@@ -258,7 +258,7 @@ Path * Roadmap::getPath(const Pos2& start, const Pos2& end) {
       ++i) {
     path->addPoint(*i);
 
-    std::cout << "Adding (" << i->x << ", " << i->y << ") to path." << std::endl;
+    //std::cout << "Adding (" << i->x << ", " << i->y << ") to path." << std::endl;
   }
 
   path->addPoint(end);
