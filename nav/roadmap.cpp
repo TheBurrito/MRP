@@ -145,17 +145,17 @@ Path * Roadmap::getPath(const Pos2& start, const Pos2& end) {
   startPt.v = -1;
   endPt.v = -1;
 
-  std::cout << "Generating path from (" << start.x << ", " << start.y
-      << ") to (" << end.x << ", " << end.y << ")" << std::endl;
+  //std::cout << "Generating path from (" << start.x << ", " << start.y
+  //    << ") to (" << end.x << ", " << end.y << ")" << std::endl;
 
   sClosest = *(closestPoint(points, start));
   eClosest = *(closestPoint(points, end));
 
-  std::cout << "\tClosest to start on Roadmap: (" << sClosest.x << ", "
-      << sClosest.y << ")" << std::endl;
+  //std::cout << "\tClosest to start on Roadmap: (" << sClosest.x << ", "
+  //    << sClosest.y << ")" << std::endl;
 
-  std::cout << "\tClosest to end on Roadmap: (" << eClosest.x << ", "
-      << eClosest.y << ")" << std::endl;
+  //std::cout << "\tClosest to end on Roadmap: (" << eClosest.x << ", "
+  //    << eClosest.y << ")" << std::endl;
 
   //We can now path find from sClosest to eClosest and just add the extra points
 
@@ -183,8 +183,8 @@ Path * Roadmap::getPath(const Pos2& start, const Pos2& end) {
     curNode = frontier.top();
     frontier.pop();
 
-    std::cout << "\n\tPopped (" << curNode->p.x << ", " << curNode->p.y
-        << ") off the frontier." << std::endl;
+    //std::cout << "\n\tPopped (" << curNode->p.x << ", " << curNode->p.y
+    //    << ") off the frontier." << std::endl;
 
     //Skip nodes that have already been visited.
     if (std::find(visited.begin(), visited.end(), curNode->p)
@@ -194,7 +194,7 @@ Path * Roadmap::getPath(const Pos2& start, const Pos2& end) {
 
     //Check if goal
     if (curNode->p == eClosest) {
-      std::cout << "\tPoint is goal." << std::endl;
+      //std::cout << "\tPoint is goal." << std::endl;
       break;
     }
 
@@ -204,33 +204,33 @@ Path * Roadmap::getPath(const Pos2& start, const Pos2& end) {
 
     //Create the search nodes for each neighbor and add to frontier
     for (Pos2VList::iterator i = neighbors.begin(); i != neighbors.end(); ++i) {
-      std::cout << "\tGenerating new search node" << std::endl;
+      //std::cout << "\tGenerating new search node" << std::endl;
       curNode = new SearchNode();
       curNode->parent = parent;
 
-      std::cout << "\t\tPoint (" << i->p.x << ", " << i->p.y
-          << ")" << std::endl;
+      //std::cout << "\t\tPoint (" << i->p.x << ", " << i->p.y
+      //    << ")" << std::endl;
 
-      std::cout << "\t\tSetting parent to (" << parent->p.x << ", "
-          << parent->p.y << ")" << std::endl;
+      //std::cout << "\t\tSetting parent to (" << parent->p.x << ", "
+      //    << parent->p.y << ")" << std::endl;
 
       curNode->p = i->p;
       curNode->g = parent->g + i->v;
 
-      std::cout << "\t\tG(n) = " << curNode->g << std::endl;
+      //std::cout << "\t\tG(n) = " << curNode->g << std::endl;
 
       curNode->h = pointDist(curNode->p, end);
 
-      std::cout << "\t\tH(n) = " << curNode->h << std::endl;
+      //std::cout << "\t\tH(n) = " << curNode->h << std::endl;
 
       frontier.push(curNode);
     }
   }
 
-  std::cout << "Finished search." << std::endl;
+  //std::cout << "Finished search." << std::endl;
 
   if (!curNode) {
-    std::cout << "Exausted search space" << std::endl;
+    //std::cout << "Exausted search space" << std::endl;
     return 0;
   }
 
@@ -245,7 +245,7 @@ Path * Roadmap::getPath(const Pos2& start, const Pos2& end) {
     delete allNodes[i];
   }
 
-  std::cout << "Finished tracing path from goal." << std::endl;
+  //std::cout << "Finished tracing path from goal." << std::endl;
 
   //tmpPath.push_back(end);
 

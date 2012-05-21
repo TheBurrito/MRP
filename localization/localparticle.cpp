@@ -84,7 +84,7 @@ void ParticleLocalization::sensorUpdate() {
       }
     }
 
-    std::cout << "Spawned " << c << " children and " << r << " randomly." << std::endl;
+    //std::cout << "Spawned " << c << " children and " << r << " randomly." << std::endl;
   //}
 }
 
@@ -116,13 +116,13 @@ PoseV ParticleLocalization::getPose() {
   avg.pose.p.y = sum.pose.p.y / w;
   avg.pose.yaw = sum.pose.yaw / w;
 
-  //Now find the avg sq error for each particle
+  //Now find the weighted sq error for each particle
   for (PoseVList::iterator i = particles.begin(); i != particles.end(); ++i) {
-    double dx = i->pose.p.x - sum.pose.p.x;
-    double dy = i->pose.p.y - sum.pose.p.y;
-    avg.v += dx*dx + dy*dy;
+    double dx = i->pose.p.x - avg.pose.p.x;
+    double dy = i->pose.p.y - avg.pose.p.y;
+    avg.v += hypot(dx, dy) * i->v;
   }
-  avg.v /= n;
+  avg.v /= w;
 
   return avg;
 }
