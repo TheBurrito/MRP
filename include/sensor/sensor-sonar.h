@@ -33,7 +33,7 @@ public:
    * cases this should agree with the length of the list returned from
    * getLocalScan.
    */
-  virtual unsigned int getRangeCount();
+  virtual size_t getRangeCount();
 
   virtual size_t getNumSensors();
 
