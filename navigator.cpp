@@ -726,13 +726,13 @@ void initLocal() {
 
 void initVis() {
   cout << "Initializing visualization window..." << flush;
-  im = initVis(1000, 450, false, &drawing);
+  im = initVis(1000, 450, true, &drawing);
   cout << "Done" << endl;
 }
 
 int main(int argc, char** argv) {
 
-  std::string ptfile, mapfile, host, roadmapfile = "gccis3.roadmap";
+  std::string ptfile, mapfile, host, roadmapfile = "maps/gccis3.roadmap";
   int port;
 
   srand(time(0));
@@ -755,7 +755,7 @@ int main(int argc, char** argv) {
   initSensor();
   initAPF();
   loadMap(mapfile);
-  loadRoadmap("maps/" + roadmapfile);
+  loadRoadmap(roadmapfile);
   initLocal();
 
   if (USE_VIS) {

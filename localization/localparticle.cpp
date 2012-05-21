@@ -115,26 +115,14 @@ PoseV ParticleLocalization::getPose() {
   avg.pose.p.x = sum.pose.p.x / w;
   avg.pose.p.y = sum.pose.p.y / w;
   avg.pose.yaw = sum.pose.yaw / w;
-  avg.v = w / n;
 
-  /*for (PoseVList::iterator i = particles.begin(); i != particles.end(); ++i) {
-    d = hypot(sum.pose.p.x - i->pose.p.x, sum.pose.p.y - i->pose.p.y);
-    avg.v += d;
-
-    if (d < v) {
-      avg.pose.p.x += i->pose.p.x;
-      avg.pose.p.y += i->pose.p.y;
-      avg.pose.yaw += i->pose.yaw;
-      ++n;
-    }
+  //Now find the avg sq error for each particle
+  for (PoseVList::iterator i = particles.begin(); i != particles.end(); ++i) {
+    double dx = i->pose.p.x - sum.pose.p.x;
+    double dy = i->pose.p.y - sum.pose.p.y;
+    avg.v += dx*dx + dy*dy;
   }
-
-  if (n > 0) {
-    avg.pose.p.x /= n;
-    avg.pose.p.y /= n;
-    avg.pose.yaw /= n;
-    avg.v /= particles.size();
-  }*/
+  avg.v /= n;
 
   return avg;
 }
