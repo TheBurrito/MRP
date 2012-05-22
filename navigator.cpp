@@ -129,6 +129,8 @@ pthread_t thrMission;
 pthread_t thrVis;
 pthread_t thrPose;
 
+pthread_mutex_t localUpdate = PTHREAD_MUTEX_INITIALIZER;
+
 SensorSonar *sSonar;
 SensorModel *sonar;
 
@@ -136,6 +138,8 @@ Roadmap *rMap;
 
 MinDistCalc *apf_calc;
 APF *apf;
+
+double navThresh;
 
 Pos2 drvCmd;
 
@@ -295,6 +299,9 @@ void * missionLoop(void *arg) {
 
   cout << "Reached last point, queue up \"We Are the Champions\"!" << endl;
 
+  //The threads do not degrade gracefully, so don't give them a chance to screw
+  //up the win!
+  exit(0);
   return 0;
 }
 
@@ -332,7 +339,9 @@ void * driveLoop(void *arg) {
     dPose = odomToRobot - prevPose;
     prevPose = odomToRobot;
 
+    pthread_mutex_lock(&localUpdate);
     pLocal->motionUpdate(dPose);
+    pthread_mutex_unlock(&localUpdate);
 
     //BM Driveloop
 
@@ -365,7 +374,7 @@ void * driveLoop(void *arg) {
     if (doPath) {
       //Prevent the robot from toilet-bowling around a close waypoint to it's side
       double c = cos(t);
-      v *= c * c;
+      v *= c * navThresh;
     }
 
     //cout << "Vel: " << v << " Turn: " << t << endl;
@@ -401,9 +410,10 @@ void * localLoop(void *arg) {
       continue;
     }
 
-    sensorUpdate = true;
-    pLocal->sensorUpdate();
-    sensorUpdate = false;
+    if (!pthread_mutex_trylock(&localUpdate)) {
+      pLocal->sensorUpdate();
+      pthread_mutex_unlock(&localUpdate);
+    }
 
     //estPose = pLocal->getPose();
 
@@ -430,13 +440,15 @@ void * poseLoop(void *arg) {
 
   while (true) {
     usleep(10000);
-    if (sensorUpdate) {
+    if (pthread_mutex_trylock(&localUpdate)) {
       continue;
     }
 
     gettingPose = true;
     lastPose = estPose;
     estPose = pLocal->getPose();
+
+    pthread_mutex_unlock(&localUpdate);
 
     //Check if the localization point moved from cluster to cluster within a
     //single iteration and didn't otherwise knock the robot out of pathing.
@@ -511,22 +523,20 @@ void * navLoop(void *arg) {
       curPath->getCurrentPt(curGoal);
     }
 
-    double thresh;
-
     char navMsg[] = "\nReached intermediate navigation point.";
     char wayptMsg[] = "\nReached assigned goal waypoint.";
     char *msg;
 
     if (curPath->curIndex() == curPath->numPts() - 1) {
       //Final point in a path is an actual assigned goal point
-      thresh = WAYPT_THRESH;
+      navThresh = WAYPT_THRESH;
       msg = wayptMsg;
     } else {
-      thresh = NAV_THRESH;
+      navThresh = NAV_THRESH;
       msg = navMsg;
     }
 
-    if (curPath->update(estPose.pose, thresh)) {
+    if (curPath->update(estPose.pose, navThresh)) {
       cout << msg << endl;
       curPath->getCurrentPt(curGoal);
 
