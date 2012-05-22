@@ -131,7 +131,7 @@ Path * Roadmap::getPath(const Pos2& start, const Pos2& end) {
   Path *path = new Path();
 
   //The roadmap points that are closest to the start and end points.
-  Pos2 sClosest, eClosest;
+  Pos2 sClosest, eClosest, sNeighbor, eNeighbor;
 
   //The list of points connected to the closest start and closest end points.
   Pos2VList sNeighbors, eNeighbors;
@@ -139,23 +139,49 @@ Path * Roadmap::getPath(const Pos2& start, const Pos2& end) {
   //The point currently being generated along a roadmap edge.
   Pos2V curPt;
 
+  //Flags for whether to add the point on the edge to the path or not.
+  bool sAddEdge = true, eAddEdge = true;
+
+  //Flags to remove points that would cause doubling back.
+  bool remFirst = false, remLast = false;
+
   //The intermediate points chosen along segments as the entrance and exit to
   //the roadmap.
   Pos2V startPt, endPt;
   startPt.v = -1;
   endPt.v = -1;
 
-  //std::cout << "Generating path from (" << start.x << ", " << start.y
-  //    << ") to (" << end.x << ", " << end.y << ")" << std::endl;
-
   sClosest = *(closestPoint(points, start));
   eClosest = *(closestPoint(points, end));
 
-  //std::cout << "\tClosest to start on Roadmap: (" << sClosest.x << ", "
-  //    << sClosest.y << ")" << std::endl;
+  sNeighbors = edges[sClosest];
+  eNeighbors = edges[eClosest];
 
-  //std::cout << "\tClosest to end on Roadmap: (" << eClosest.x << ", "
-  //    << eClosest.y << ")" << std::endl;
+  //Find the closest on-edge point to the starting point
+  for (Pos2VList::iterator i = sNeighbors.begin(); i != sNeighbors.end(); ++i) {
+    curPt.p = closestOnLine(sClosest, i->p, start, true);
+    curPt.v = pointDist(curPt.p, start);
+    if (curPt.v < startPt.v || startPt.v < 0) {
+      startPt = curPt;
+      sNeighbor = i->p;
+    }
+  }
+
+  //std::cout << "\tClosest on edge to start: (" << startPt.p.x << ", "
+  //    << startPt.p.y << ")" << std::endl;
+
+  //Find closest on-edge point to the end point
+  for (Pos2VList::iterator i = eNeighbors.begin(); i != eNeighbors.end(); ++i) {
+    curPt.p = closestOnLine(eClosest, i->p, end, true);
+    curPt.v = pointDist(curPt.p, end);
+    if (curPt.v < endPt.v || endPt.v < 0) {
+      endPt = curPt;
+      eNeighbor = i->p;
+    }
+  }
+
+  //std::cout << "\tClosest on edge to end: (" << endPt.p.x << ", " << endPt.p.y
+  //    << ")" << std::endl;
 
   //We can now path find from sClosest to eClosest and just add the extra points
 
@@ -248,10 +274,18 @@ Path * Roadmap::getPath(const Pos2& start, const Pos2& end) {
   for (size_t i = 0; i < allNodes.size(); ++i) {
     delete allNodes[i];
   }
+  if (tmpPath.size() > 2) {
+    if (tmpPath.at(1) == sNeighbor) {
+      tmpPath.pop_front();
+    }
 
-  //std::cout << "Finished tracing path from goal." << std::endl;
+    if (tmpPath.at(tmpPath.size() - 2) == eNeighbor) {
+      tmpPath.pop_back();
+    }
+  }
 
-  //tmpPath.push_back(end);
+  tmpPath.push_front(startPt.p);
+  tmpPath.push_back(endPt.p);
 
   //Now dump the path into the Path instance.
   for (std::deque<Pos2>::iterator i = tmpPath.begin(); i != tmpPath.end();
