@@ -20,7 +20,7 @@ void display() {
     return;
   }
 
-  usleep(0);
+  usleep(100);
 
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();

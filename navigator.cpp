@@ -34,7 +34,7 @@ using namespace PlayerCc;
 
 #define SONAR_RES 0.3
 
-#define RAND_SPAWN 0.2
+#define RAND_SPAWN 0.4
 #define POS_JITTER 0.2
 #define YAW_JITTER 0.2
 
