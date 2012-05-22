@@ -1,8 +1,14 @@
 cmake_minimum_required(VERSION 2.4)
 PROJECT (dab5267_mrp)
 
-#SET (CMAKE_MODULE_PATH "/usr/local/dcs/share/cmake/Modules")
-SET (CMAKE_MODULE_PATH "/usr/local/dcs/share/cmake/Modules:/usr/share/cmake-2.8/Modules")
+if (EXISTS /usr/local/dcs)
+  SET (CMAKE_MODULE_PATH "/usr/local/dcs/share/cmake/Modules")
+  include_directories(/usr/local/dcs/include/player-3.0)
+else (EXISTS /usr/local/dcs)
+  #SET (CMAKE_MODULE_PATH "/usr/share/cmake-2.8/Modules")
+  include_directories(/usr/local/include/player-3.0)
+endif (EXISTS /usr/local/dcs)
+
 INCLUDE (UsePlayerC++)
 
 #Used for visualizing maps / data
@@ -21,12 +27,6 @@ SET (DRAWING_LIBS ${GLUT_LIBRARY} ${OPENGL_LIBRARY} X11 Xext)
 
 #Setup the doc target for make to run doxygen
 find_package(Doxygen)
-
-if (EXISTS /usr/local/dcs)
-  include_directories(/usr/local/dcs/include/player-3.0)
-else (EXISTS /usr/local/dcs)
-  include_directories(/usr/local/include/player-3.0)
-endif (EXISTS /usr/local/dcs)
 
 if (DOXYGEN_FOUND)
   configure_file(

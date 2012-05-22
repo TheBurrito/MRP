@@ -1,5 +1,55 @@
 This source tree is for assignments in the Mobile Robot Programming course at
 Rochester Institute of Technology.
 
-Code written by Derrick Bommarito. Nearly all input is abstracted out and can be
-adapted for nearly any ranging sensor useful for mapping.
+
+BUILDING THE PROJECT
+
+It is recommended to build the project out of source, either by making a build
+directory within the source tree, or as a sibling of the source tree:
+
+cd <src-path>
+mkdir build
+cd build
+cmake ..
+make
+
+
+GENERATING DOCUMENTATION
+
+If the system being built on has Doxygen installed, the CMake will also create
+a doc target for make that will generate documentation on the entire source in
+HTML format. Once cmake has been run, simply type:
+
+make doc
+
+This will produce the documentation and put it in a doc directory in the build
+directory. If building is done in-source this will be <src-path>/doc
+
+The documentation at the time of project submission is also available at:
+http://cs.rit.edu/~dab5267/mrp
+
+
+RUNNING THE PROJECT
+
+**Note: There is a bash script called navigator that makes the Map File
+  parameter optional and assumes gccis3.map if the map file is left unspecified.
+
+Building the project creates an executable named navigate which can be run from
+the command line as follows:
+
+navigate [host] [port] <Waypoints File> <Map File>
+
+Host - (Optional) If specified, signifies the IP or hostname of the computer
+  running the Player server to connect to. If not specified, defaults to
+  localhost.
+  
+Port - (Optional) If specified, signifies the port number to connect to the
+  Player server with. If not specified, defaults to 6665.
+  
+Waypoints File - (Required) A file containing x y pairs as navigation goals. These are
+  assumed to agree with the coordinate system of the map specified.
+  
+Map File - (Required) The map file specifies the png file containing the map data along
+  with the resolution and coordinate system of the map.
+  
+
